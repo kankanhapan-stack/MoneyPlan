@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ เธฃเธ.เธชเธ•. เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ 2570</title>
+
+<!-- ==================== เธ•เธฑเนเธเธเนเธฒเธฃเธฐเธเธ (เนเธเนเธ•เธฃเธเธเธตเน) ==================== -->
+<script>
+const CONFIG = {
+  // เธงเธฒเธ URL เธเธญเธ Apps Script Web App (Deploy > Web app) เธ•เธฃเธเธเธตเน
+  // เธ–เนเธฒเน€เธงเนเธเธงเนเธฒเธ เธฃเธฐเธเธเธเธฐเธเธฑเธเธ—เธถเธเนเธงเนเนเธเน€เธเธฃเธทเนเธญเธ (localStorage) เธญเธขเนเธฒเธเน€เธ”เธตเธขเธง
+  WEB_APP_URL: '',
+
+  DISTRICT: 'เธเนเธญเธงเธฑเธ',
+  PROVINCE: 'เธขเนเธชเธเธฃ',
+  YEAR: 2570,        // เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“เธเธญเธเนเธเธ
+  PREV_YEAR: 2569,   // เธเธตเธเนเธญเธเธซเธเนเธฒ
+
+  // เนเธเนเน€เธเนเธเธเธทเนเธญ เธฃเธ.เธชเธ•. เธเธฃเธดเธเธ—เธฑเนเธ 6 เนเธซเนเธเนเธเธญเธณเน€เธ เธญ
+  FACILITIES: [
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 1',
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 2',
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 3',
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 4',
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 5',
+    'เธฃเธ.เธชเธ•.เนเธซเนเธเธ—เธตเน 6'
+  ]
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root{
+  --ink:#152238;         /* เธเนเธณเน€เธเธดเธเน€เธเนเธกเธฃเธฒเธเธเธฒเธฃ */
+  --ink-soft:#33445f;
+  --brand:#1f5f8b;       /* เธเนเธฒเธเนเธณเน€เธเธดเธ */
+  --brand-dark:#134a6e;
+  --brand-tint:#eaf2f8;
+  --gold:#b8892b;        /* เธ—เธญเธเธฃเธฒเธเธเธฒเธฃ (accent) */
+  --line:#d5dde6;
+  --line-soft:#e8edf3;
+  --bg:#f3f5f8;
+  --surface:#ffffff;
+  --ok:#1f7a4d;
+  --ok-tint:#e7f4ec;
+  --warn:#a8460f;
+  --warn-tint:#fbeee6;
+  --muted:#6b7787;
+  --shadow:0 1px 2px rgba(21,34,56,.06),0 8px 28px rgba(21,34,56,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:'Sarabun',system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:.1px}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+
+/* ---------- Layout ---------- */
+.app{max-width:1180px;margin:0 auto;padding:0 18px 90px}
+
+/* ---------- Header ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;background:var(--surface);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{max-width:1180px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.crest{
+  width:42px;height:42px;border-radius:9px;flex:none;
+  background:linear-gradient(150deg,var(--brand),var(--brand-dark));
+  color:#fff;display:grid;place-items:center;font-weight:700;font-size:19px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.15);
+}
+.title-wrap h1{font-size:18px;line-height:1.2}
+.title-wrap .sub{font-size:12.5px;color:var(--muted)}
+.topbar .fac-pick{margin-left:auto;display:flex;align-items:center;gap:8px}
+.topbar .fac-pick label{font-size:12.5px;color:var(--muted)}
+.topbar select{
+  border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:14px;
+  background:#fff;color:var(--ink);min-width:180px;font-weight:500;
+}
+.save-hint{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#c4ccd6}
+.dot.on{background:var(--ok)}
+
+/* ---------- Stepper ---------- */
+.stepper{
+  display:flex;gap:6px;overflow-x:auto;padding:14px 0 6px;margin-bottom:6px;
+  scrollbar-width:thin;
+}
+.step{
+  flex:none;display:flex;align-items:center;gap:9px;
+  border:1px solid var(--line);background:#fff;border-radius:10px;
+  padding:8px 12px;font-size:13px;color:var(--ink-soft);white-space:nowrap;
+  transition:.15s;
+}
+.step:hover{border-color:var(--brand)}
+.step .n{
+  width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:var(--brand-tint);color:var(--brand-dark);font-weight:700;font-size:12px;
+}
+.step.active{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-dark);font-weight:600}
+.step.active .n{background:var(--brand);color:#fff}
+.step.done .n{background:var(--ok);color:#fff}
+.step.done{border-color:#bfe0cc}
+
+/* ---------- Card ---------- */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.card-head{
+  padding:18px 22px;border-bottom:1px solid var(--line-soft);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.card-head .eyebrow{font-size:12px;font-weight:600;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase}
+.card-head h2{font-size:20px;margin-top:2px}
+.card-head p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.card-head .badge{
+  margin-left:auto;flex:none;font-size:12px;font-weight:600;color:var(--brand-dark);
+  background:var(--brand-tint);border-radius:999px;padding:6px 12px;
+}
+.card-body{padding:22px}
+.page{display:none}
+.page.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- Forms ---------- */
+.grid{display:grid;gap:16px 20px}
+.grid.c2{grid-template-columns:1fr 1fr}
+.grid.c3{grid-template-columns:1fr 1fr 1fr}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+.field .hint{font-weight:400;color:var(--muted);font-size:12px}
+.field input,.field select{
+  width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  font-size:15px;background:#fff;color:var(--ink);transition:.15s;
+}
+.field input:focus,.field select:focus,.tbl input:focus{
+  outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,95,139,.14)
+}
+.field input[readonly]{background:#f6f8fa;color:var(--ink-soft)}
+
+.section-label{
+  font-size:14px;font-weight:700;color:var(--brand-dark);
+  margin:26px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--brand-tint);
+  display:flex;align-items:center;gap:8px;
+}
+.section-label:first-child{margin-top:0}
+
+/* ---------- Tables ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+table.tbl th,table.tbl td{border-bottom:1px solid var(--line-soft);padding:9px 10px;text-align:left;vertical-align:middle}
+table.tbl thead th{
+  background:var(--ink);color:#fff;font-weight:600;font-size:12.5px;
+  position:sticky;top:0;text-align:center;border-bottom:none;
+}
+table.tbl thead th:first-child{border-top-left-radius:0}
+table.tbl tbody tr:hover{background:#fafbfc}
+table.tbl td.num,table.tbl th.num{text-align:right;width:150px}
+table.tbl td.center{text-align:center;width:60px;color:var(--muted)}
+.tbl input{
+  width:100%;border:1px solid transparent;border-radius:7px;padding:7px 9px;
+  font-size:14px;text-align:right;background:#f7f9fb;color:var(--ink);
+}
+.tbl input.txt{text-align:left}
+.tbl input:hover{border-color:var(--line)}
+.row-head td{background:var(--brand-tint);font-weight:700;color:var(--brand-dark)}
+.row-sub td:first-child{padding-left:26px;color:var(--ink-soft)}
+.row-total td{background:#eef3f7;font-weight:700;border-top:2px solid var(--brand)}
+.row-total td.num{color:var(--brand-dark);font-size:15px}
+.note-cell{color:var(--muted);font-size:12px;width:150px}
+
+.mini-btn{
+  border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;
+  font-size:13px;font-weight:600;color:var(--brand-dark);display:inline-flex;gap:6px;align-items:center
+}
+.mini-btn:hover{border-color:var(--brand);background:var(--brand-tint)}
+.mini-btn.danger{color:var(--warn)}
+.mini-btn.danger:hover{border-color:var(--warn);background:var(--warn-tint)}
+
+/* ---------- Summary ---------- */
+.sum-row{display:flex;justify-content:space-between;gap:14px;padding:11px 4px;border-bottom:1px dashed var(--line)}
+.sum-row .lab{color:var(--ink-soft)}
+.sum-row .val{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum-row.lv2 .lab{padding-left:20px;font-weight:400;color:var(--muted)}
+.sum-row.lv2 .val{font-weight:600}
+.sum-row.grand{background:var(--brand);color:#fff;border-radius:10px;padding:14px 16px;margin-top:12px;border:none}
+.sum-row.grand .lab{color:#fff;font-weight:700;font-size:16px}
+.sum-row.grand .val{font-size:18px}
+.callout{
+  display:flex;gap:10px;padding:12px 14px;border-radius:10px;font-size:13px;
+  background:var(--brand-tint);color:var(--brand-dark);border:1px solid #cfe0ee;margin-top:14px
+}
+.callout.warn{background:var(--warn-tint);color:var(--warn);border-color:#f0d3c2}
+.callout.ok{background:var(--ok-tint);color:var(--ok);border-color:#c6e6d3}
+
+/* ---------- Footer nav ---------- */
+.navbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--surface);
+  border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(21,34,56,.06)
+}
+.navbar-in{max-width:1180px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:12px}
+.btn{
+  border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 18px;
+  font-size:14.5px;font-weight:600;color:var(--ink-soft);display:inline-flex;align-items:center;gap:8px;transition:.15s
+}
+.btn:hover{border-color:var(--brand)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-dark)}
+.btn.ghost{background:transparent}
+.nav-status{margin-left:auto;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.progress{width:120px;height:6px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--gold));width:0;transition:.3s}
+
+/* ---------- Export page ---------- */
+.export-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.exp-card{
+  border:1px solid var(--line);border-radius:13px;padding:20px;text-align:center;background:#fff;transition:.15s
+}
+.exp-card:hover{border-color:var(--brand);box-shadow:var(--shadow);transform:translateY(-2px)}
+.exp-card .ic{font-size:30px;margin-bottom:8px}
+.exp-card h3{font-size:16px;margin-bottom:4px}
+.exp-card p{margin:0 0 14px;font-size:12.5px;color:var(--muted)}
+.exp-card .btn{width:100%;justify-content:center}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:11px;font-size:14px;font-weight:500;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:100;
+  display:flex;align-items:center;gap:9px;max-width:90vw
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--ok)}
+.toast.err{background:#a12f2f}
+
+@media(max-width:820px){
+  .grid.c2,.grid.c3{grid-template-columns:1fr}
+  .export-grid{grid-template-columns:1fr}
+  .topbar .fac-pick{margin-left:0;width:100%}
+  .topbar select{flex:1}
+}
+
+/* ==================== PRINT / PDF ==================== */
+#printArea{display:none}
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  body{background:#fff;font-size:14px}
+  .topbar,.stepper,.navbar,.card,.toast,#appMain{display:none !important}
+  #printArea{display:block !important}
+}
+/* เนเธเธฃเธเธชเธฃเนเธฒเธเน€เธญเธเธชเธฒเธฃเธเธดเธกเธเน */
+.doc{font-family:'Sarabun',sans-serif;color:#000}
+.doc .sheet{page-break-after:always;padding:6px 4px}
+.doc .sheet:last-child{page-break-after:auto}
+.doc .head{text-align:center;margin-bottom:10px}
+.doc .head h2{font-size:18px}
+.doc .head .l2{font-size:16px}
+.doc .head .l3{font-size:15px}
+.doc table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+.doc table th,.doc table td{border:1px solid #333;padding:5px 7px}
+.doc table th{background:#e9eef3;text-align:center;font-weight:600}
+.doc .num{text-align:right;font-variant-numeric:tabular-nums}
+.doc .ctr{text-align:center}
+.doc .tot{font-weight:700;background:#f2f5f8}
+.doc .sec{font-weight:700;margin:14px 0 4px;font-size:15px}
+.doc .sign{display:flex;justify-content:space-around;margin-top:34px;font-size:13.5px;text-align:center;gap:16px}
+.doc .sign .col{flex:1}
+.doc .sign .line{margin-bottom:2px}
+</style>
+</head>
+<body>
+
+<!-- ==================== TOPBAR ==================== -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="crest">เธฟ</div>
+    <div class="title-wrap">
+      <h1>เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ เนเธฃเธเธเธขเธฒเธเธฒเธฅเธชเนเธเน€เธชเธฃเธดเธกเธชเธธเธเธ เธฒเธเธ•เธณเธเธฅ</h1>
+      <div class="sub" id="subTitle">เธเธฃเธฐเธเธณเธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ เธ.เธจ. 2570 ยท เธญเธณเน€เธ เธญเธเนเธญเธงเธฑเธ เธเธฑเธเธซเธงเธฑเธ”เธขเนเธชเธเธฃ</div>
+    </div>
+    <div class="fac-pick">
+      <label for="facilitySel">เธชเธ–เธฒเธเธเธฃเธดเธเธฒเธฃ</label>
+      <select id="facilitySel"></select>
+    </div>
+  </div>
+</header>
+
+<main class="app" id="appMain">
+
+  <!-- STEPPER -->
+  <nav class="stepper" id="stepper"></nav>
+
+  <div class="card">
+    <div class="card-head">
+      <div style="flex:1">
+        <div class="eyebrow" id="pgEyebrow">เธชเนเธงเธเธ—เธตเน 1</div>
+        <h2 id="pgTitle">เธเนเธญเธกเธนเธฅเธ—เธฑเนเธงเนเธ (เธเธ)</h2>
+        <p id="pgDesc"></p>
+      </div>
+      <span class="badge" id="pgBadge">1 / 7</span>
+    </div>
+    <div class="card-body">
+
+      <!-- ===== เธซเธเนเธฒ 1: เธเธ ===== -->
+      <section class="page active" data-page="0">
+        <div class="grid c2">
+          <div class="field">
+            <label>เธเธทเนเธญเธชเธ–เธฒเธเธเธฃเธดเธเธฒเธฃ (เธฃเธ.เธชเธ•.)</label>
+            <input id="f_facility" readonly>
+          </div>
+          <div class="field">
+            <label>เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“</label>
+            <input id="f_year" readonly>
+          </div>
+          <div class="field">
+            <label>เธญเธณเน€เธ เธญ</label>
+            <input id="f_district" readonly>
+          </div>
+          <div class="field">
+            <label>เธเธฑเธเธซเธงเธฑเธ”</label>
+            <input id="f_province" readonly>
+          </div>
+        </div>
+
+        <div class="section-label">เธเธนเนเธฅเธเธเธฒเธกเนเธเนเธเธ</div>
+        <div class="grid c2">
+          <div class="field">
+            <label>เธเธนเนเน€เธชเธเธญเนเธเธ <span class="hint">(เธเธทเนเธญ-เธชเธเธธเธฅ)</span></label>
+            <input id="f_proposer" placeholder="เธเธฒเธข/เธเธฒเธ/เธเธฒเธเธชเธฒเธง ...">
+          </div>
+          <div class="field">
+            <label>เธ•เธณเนเธซเธเนเธเธเธนเนเน€เธชเธเธญเนเธเธ</label>
+            <input id="f_proposer_pos" value="เธเธนเนเธญเธณเธเธงเธขเธเธฒเธฃเนเธฃเธเธเธขเธฒเธเธฒเธฅเธชเนเธเน€เธชเธฃเธดเธกเธชเธธเธเธ เธฒเธเธ•เธณเธเธฅ">
+          </div>
+          <div class="field">
+            <label>เธเธนเนเน€เธซเนเธเธเธญเธเนเธเธ (เธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธญเธณเน€เธ เธญ)</label>
+            <input id="f_approver1" placeholder="เธเธทเนเธญ-เธชเธเธธเธฅ เธชเธชเธญ.">
+          </div>
+          <div class="field">
+            <label>เธ•เธณเนเธซเธเนเธ</label>
+            <input id="f_approver1_pos" value="เธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธญเธณเน€เธ เธญเธเนเธญเธงเธฑเธ">
+          </div>
+          <div class="field">
+            <label>เธเธนเนเธญเธเธธเธกเธฑเธ•เธดเนเธเธ (เธเธฒเธขเนเธเธ—เธขเน เธชเธชเธ.)</label>
+            <input id="f_approver2" placeholder="เธเธทเนเธญ-เธชเธเธธเธฅ เธเธ.เธชเธชเธ.">
+          </div>
+          <div class="field">
+            <label>เธงเธฑเธเธ—เธตเนเธเธฑเธ”เธ—เธณเนเธเธ</label>
+            <input id="f_docdate" placeholder="เน€เธเนเธ 15 เธชเธดเธเธซเธฒเธเธก 2569">
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 2: เธ•เธฒเธฃเธฒเธ 1 เธชเธ–เธดเธ•เธดเธขเนเธญเธเธซเธฅเธฑเธ ===== -->
+      <section class="page" data-page="1">
+        <div class="callout">เธ•เธฒเธฃเธฒเธเธ—เธตเน 1 ยท เธฃเธฒเธขเธเธฒเธฃเธฃเธฑเธโ€“เธเนเธฒเธขเน€เธเธดเธเธเธณเธฃเธธเธเธขเนเธญเธเธซเธฅเธฑเธ 5 เธเธต (2565โ€“2569) โ€” เธขเธญเธ”เธเธเน€เธซเธฅเธทเธญ เธ“ เธ.เธ. 2569 เธเธฐเธขเธเนเธเน€เธเนเธเธเนเธญ 1 เธเธญเธเธชเธฃเธธเธเนเธเธเธฏ เธญเธฑเธ•เนเธเธกเธฑเธ•เธด</div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table class="tbl" id="tblStats">
+            <thead>
+              <tr>
+                <th style="text-align:left">เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“</th>
+                <th class="num">เธขเธญเธ”เธขเธเธกเธฒ</th>
+                <th class="num">เธฃเธฒเธขเธฃเธฑเธ</th>
+                <th class="num">เธฃเธฒเธขเธเนเธฒเธข</th>
+                <th class="num">เธขเธญเธ”เธเธเน€เธซเธฅเธทเธญ</th>
+                <th style="text-align:left">เธซเธกเธฒเธขเน€เธซเธ•เธธ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="callout" style="margin-top:14px">
+          เน€เธญเธเธชเธฒเธฃเนเธเธเธเธฃเธฐเธเธญเธ: (1) เธฃเธฒเธขเธเธฒเธเธฃเธฑเธโ€“เธเนเธฒเธขเน€เธเธดเธเธเธณเธฃเธธเธ เธ“ 31 เธ.เธ. 2569 ยท (2) เธชเธณเน€เธเธฒเธเธเธซเธเนเธฒเธชเธกเธธเธ”เธเธเธฒเธเธฒเธฃ ยท (3) เธฃเธฒเธขเธเธฒเธเน€เธเธดเธเธเธเน€เธซเธฅเธทเธญเธเธฃเธฐเธเธณเธงเธฑเธ (เธฃเธฑเธเธฃเธญเธเธชเธณเน€เธเธฒเธ–เธนเธเธ•เนเธญเธเธ—เธธเธเธซเธเนเธฒ)
+        </div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 3: เธ•เธฒเธฃเธฒเธ 2 เธฃเธฒเธขเธฃเธฑเธ ===== -->
+      <section class="page" data-page="2">
+        <div class="callout">เธ•เธฒเธฃเธฒเธเธ—เธตเน 2 ยท เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต 2570 โ€” เธเธฃเธญเธเน€เธเธเธฒเธฐเธฃเธฒเธขเธเธฒเธฃเธขเนเธญเธข เธฃเธฐเธเธเธเธฐเธฃเธงเธกเธขเธญเธ”เธซเธฑเธงเธเนเธญเนเธฅเธฐเธขเธญเธ”เธฃเธงเธกเนเธซเนเธญเธฑเธ•เนเธเธกเธฑเธ•เธด</div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table class="tbl" id="tblIncome">
+            <thead>
+              <tr>
+                <th style="text-align:left;min-width:300px">เธฃเธฒเธขเธเธฒเธฃเธฃเธฑเธ</th>
+                <th class="num">เธฃเธฒเธขเธฃเธฑเธ เธเธต 2569</th>
+                <th class="num">เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃ เธเธต 2570</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 4: เธ•เธฒเธฃเธฒเธ 3 เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด ===== -->
+      <section class="page" data-page="3">
+        <div class="callout">เธ•เธฒเธฃเธฒเธเธ—เธตเน 3 ยท เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด เธเธต 2570 โ€” เธขเธญเธ”เธฃเธงเธก "เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ" เธขเธเนเธเธเนเธญ 4 เนเธฅเธฐ "เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธเธต 2570" เธขเธเนเธเธเนเธญ 3.1.1 เธเธญเธเธชเธฃเธธเธเนเธเธเธฏ</div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table class="tbl" id="tblExpense">
+            <thead>
+              <tr>
+                <th style="text-align:left;min-width:280px">เธซเธกเธงเธ” / เธฃเธฒเธขเธเธฒเธฃ</th>
+                <th class="num">เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ<br><small>เธ“ 31 เธ.เธ.69</small></th>
+                <th class="num">เธฃเธฒเธขเธเนเธฒเธข<br><small>เธเธต 2569</small></th>
+                <th class="num">เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃ<br><small>เธเธต 2570</small></th>
+                <th class="note-cell">เธซเธกเธฒเธขเน€เธซเธ•เธธ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 5: เธ•เธฒเธฃเธฒเธ 4 เนเธเธฃเธเธเธฒเธฃ ===== -->
+      <section class="page" data-page="4">
+        <div class="callout">เธ•เธฒเธฃเธฒเธเธ—เธตเน 4 ยท เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ เธเธต 2570 โ€” เธขเธญเธ”เธฃเธงเธกเธขเธเนเธเธเนเธญ 3.1.2 เธเธญเธเธชเธฃเธธเธเนเธเธเธฏ</div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table class="tbl" id="tblProjects">
+            <thead>
+              <tr>
+                <th class="center">เธฅเธณเธ”เธฑเธ</th>
+                <th style="text-align:left">เธเธทเนเธญเนเธเธฃเธเธเธฒเธฃ</th>
+                <th class="num">เธเธณเธเธงเธเน€เธเธดเธ (เธเธฒเธ—)</th>
+                <th class="center">เธฅเธ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="mini-btn" style="margin-top:12px" onclick="addProjectRow()">+ เน€เธเธดเนเธกเนเธเธฃเธเธเธฒเธฃ</button>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 6: เธ•เธฒเธฃเธฒเธ 5 เธฅเธเธ—เธธเธ ===== -->
+      <section class="page" data-page="5">
+        <div class="callout">เธ•เธฒเธฃเธฒเธเธ—เธตเน 5 ยท เธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ (Capital Cost) เธเธต 2570 โ€” เธขเธญเธ” "เนเธเนเธเธฒเธเธเธเธฅเธเธ—เธธเธเธเธต 69เธฏ" เธขเธเนเธเธเนเธญ 3.2.1 เนเธฅเธฐ "เนเธเนเธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ" เธขเธเนเธเธเนเธญ 3.2.2</div>
+        <div class="tbl-wrap" style="margin-top:14px">
+          <table class="tbl" id="tblCapital">
+            <thead>
+              <tr>
+                <th class="center">เธฅเธณเธ”เธฑเธ</th>
+                <th style="text-align:left;min-width:170px">เธซเธกเธงเธ”</th>
+                <th style="text-align:left;min-width:150px">เธฃเธฒเธขเธเธฒเธฃ</th>
+                <th class="num">เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ<br><small>เธ“ 31 เธ.เธ.69</small></th>
+                <th class="num">เนเธเนเธเธฒเธเธเธเธฅเธเธ—เธธเธ<br><small>เธเธต 69 เนเธฅเธฐเธเนเธญเธเธฏ</small></th>
+                <th class="num">เนเธเนเธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธ<br><small>เธเธเน€เธซเธฅเธทเธญ 31 เธ.เธ.69</small></th>
+                <th class="center">เธฅเธ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button class="mini-btn" style="margin-top:12px" onclick="addCapitalRow()">+ เน€เธเธดเนเธกเธฃเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ</button>
+        <div class="callout warn" style="margin-top:12px">เธเธฃเธ“เธตเธเนเธฒเธเนเธญเธชเธฃเนเธฒเธ เนเธเธฃเธ”เนเธเธเนเธเธเนเธเธฅเธเธเธฃเธฐเธเธญเธเธเธฒเธฃเธเธฑเธ”เธ—เธณเนเธเธเธ”เนเธงเธข</div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒ 7: เธชเธฃเธธเธเนเธเธเธฏ + เธเธธเธเธฅเธฒเธเธฃ ===== -->
+      <section class="page" data-page="6">
+        <div class="section-label">เธญเธฑเธ•เธฃเธฒเธเธณเธฅเธฑเธเธเธธเธเธฅเธฒเธเธฃ (เธ“ 31 เธเธฃเธเธเธฒเธเธก 2569)</div>
+        <div id="personnelWrap"></div>
+
+        <div class="section-label" style="margin-top:28px">เธชเธฃเธธเธเนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ เธเธต 2570</div>
+        <div id="summaryWrap"></div>
+
+        <div class="field" style="max-width:340px;margin-top:18px">
+          <label>เธเนเธญ 3.3 เธเธเธเธฅเธฒเธ (เธเธธเธเน€เธเธดเธ/เน€เธฃเนเธเธ”เนเธงเธ) <span class="hint">เนเธกเนเน€เธเธดเธ 10% เธเธญเธเธฃเธฒเธขเธฃเธฑเธ</span></label>
+          <input id="f_central" type="text" inputmode="decimal" placeholder="0" style="text-align:right">
+        </div>
+        <div id="ruleCheck"></div>
+      </section>
+
+      <!-- ===== เธซเธเนเธฒเธชเนเธเธญเธญเธ (เนเธชเธ”เธเธซเธฅเธฑเธเธเธฑเธเธ—เธถเธเธเธฃเธ) ===== -->
+      <section class="page" data-page="7">
+        <div class="callout ok">เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅเธเธฃเธเธ—เธฑเนเธ 7 เธชเนเธงเธเนเธฅเนเธง เธเธฃเนเธญเธกเธชเนเธเธญเธญเธเน€เธญเธเธชเธฒเธฃ</div>
+        <div class="export-grid">
+          <div class="exp-card">
+            <div class="ic">๐“</div>
+            <h3>เธชเนเธเธญเธญเธเน€เธเนเธ Excel</h3>
+            <p>เนเธเธฅเน .xlsx 7 เธเธตเธ• เธ•เธฒเธกเนเธเธเธเธญเธฃเนเธกเธฃเธฒเธเธเธฒเธฃ</p>
+            <button class="btn primary" onclick="exportExcel()">เธ”เธฒเธงเธเนเนเธซเธฅเธ” Excel</button>
+          </div>
+          <div class="exp-card">
+            <div class="ic">๐“</div>
+            <h3>เธชเนเธเธญเธญเธเน€เธเนเธ PDF</h3>
+            <p>เนเธเธฅเน .pdf เธเธเธฒเธ” A4 เธเธฃเนเธญเธกเธเนเธญเธเธฅเธเธเธฒเธก</p>
+            <button class="btn primary" onclick="exportPDF()">เธ”เธฒเธงเธเนเนเธซเธฅเธ” PDF</button>
+          </div>
+          <div class="exp-card">
+            <div class="ic">๐–จ๏ธ</div>
+            <h3>เธเธดเธกเธเนเน€เธญเธเธชเธฒเธฃ</h3>
+            <p>เธชเธฑเนเธเธเธดเธกเธเนเธเนเธฒเธเน€เธเธฃเธทเนเธญเธเธเธดเธกเธเนเนเธ”เนเธ—เธฑเธเธ—เธต</p>
+            <button class="btn" onclick="printDoc()">เธเธดเธกเธเน</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<!-- เธเธทเนเธเธ—เธตเนเธชเธณเธซเธฃเธฑเธเธเธดเธกเธเน/PDF (เธชเธฃเนเธฒเธเน€เธเธทเนเธญเธซเธฒเธ•เธญเธเธเธ”เธเธธเนเธก) -->
+<div id="printArea"></div>
+
+<!-- ==================== FOOTER NAV ==================== -->
+<div class="navbar">
+  <div class="navbar-in">
+    <button class="btn ghost" id="btnPrev" onclick="goPrev()">โ เธขเนเธญเธเธเธฅเธฑเธ</button>
+    <button class="btn primary" id="btnSaveNext" onclick="saveAndNext()">เธเธฑเธเธ—เธถเธเนเธฅเธฐเธ–เธฑเธ”เนเธ โ’</button>
+    <div class="nav-status">
+      <span id="progressText">เธเธฑเธเธ—เธถเธเนเธฅเนเธง 0/7</span>
+      <span class="progress"><i id="progressBar"></i></span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   เนเธเธฃเธเธชเธฃเนเธฒเธเธเนเธญเธกเธนเธฅ (config)
+   ========================================================================= */
+const STAT_ROWS = [
+  {key:'y2565', label:'เธ.เธข. 2565'},
+  {key:'y2566', label:'เธ.เธข. 2566'},
+  {key:'y2567', label:'เธ.เธข. 2567'},
+  {key:'y2568', label:'เธ.เธข. 2568'},
+  {key:'y2569', label:'เธ.เธ. 2569'}
+];
+
+const INCOME_TREE = [
+  {id:'inc1', label:'1. เธเนเธฒเธขเธฒ เนเธฅเธฐเธเนเธฒเธเธฃเธดเธเธฒเธฃเธ—เธฒเธเธเธฒเธฃเนเธเธ—เธขเนเธ—เธฑเนเธเธซเธกเธ” (เธฃเธฑเธเน€เธเนเธเน€เธเธดเธเธชเธ”)', leaf:true},
+  {id:'inc2', label:'2. เน€เธเธดเธเธฃเธฑเธเนเธญเธเธเธฒเธ CUP', children:[
+    {id:'inc2_1', label:'2.1 เน€เธเธดเธเธชเธเธฑเธเธชเธเธธเธเธเธฒเธฃเธเธฑเธ”เธเธฃเธดเธเธฒเธฃ'},
+    {id:'inc2_2', label:'2.2 เน€เธเธดเธเธชเธเธฑเธเธชเธเธธเธเธเธฒเธฃเธเธฑเธ”เธเธฃเธดเธเธฒเธฃเนเธเธ—เธขเนเนเธเธเนเธ—เธข'},
+    {id:'inc2_3', label:'2.3 เน€เธเธดเธเธชเธเธฑเธเธชเธเธธเธเธเธฒเธฃเนเธซเนเธเธฃเธดเธเธฒเธฃเธเธธเธเธเธฅเธ—เธตเนเธกเธตเธเธฑเธเธซเธฒเธชเธ–เธฒเธเธฐเนเธฅเธฐเธชเธดเธ—เธเธด'},
+    {id:'inc2_4', label:'2.4 เน€เธเธดเธเธเธ”เน€เธเธขเธเนเธฒเธเธฃเธดเธเธฒเธฃ PP Non UC'},
+    {id:'inc2_5', label:'2.5 เน€เธเธดเธเธ•เธญเธเนเธ—เธเธเธณเธฅเธฑเธเธเธเธ”เนเธฒเธเธชเธฒเธเธฒเธฃเธ“เธชเธธเธ (เธ.11)'},
+    {id:'inc2_6', label:'2.6 เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเธเธฑเนเธงเธเธฃเธฒเธงเธเธฅเธธเนเธกเธงเธดเธเธฒเธเธตเธ'},
+    {id:'inc2_7', label:'2.7 PP Fee Schedule'},
+    {id:'inc2_8', label:'2.8 เธญเธทเนเธเน'}
+  ]},
+  {id:'inc3', label:'3. เน€เธเธดเธเธฃเธฑเธเนเธญเธเธเธฒเธเธชเธณเธเธฑเธเธเธฒเธเธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธเธฑเธเธซเธงเธฑเธ”', children:[
+    {id:'inc3_1', label:'3.1 เน€เธเธดเธเธเธฃเธฐเธเธฑเธเธชเธธเธเธ เธฒเธเนเธฃเธเธเธฒเธเธ•เนเธฒเธเธ”เนเธฒเธงเธซเธฅเธเธซเธเธตเน€เธเนเธฒเน€เธกเธทเธญเธ'},
+    {id:'inc3_2', label:'3.2 เธญเธทเนเธเน'}
+  ]},
+  {id:'inc4', label:'4. เน€เธเธดเธเธเนเธฒเธเธฃเธดเธเธฒเธฃเธเธฃเธฐเธเธฑเธเธชเธฑเธเธเธก', children:[
+    {id:'inc4_1', label:'4.1 เธฃเธฑเธเนเธญเธเธเธฒเธ เธฃเธ.เธเธนเนเธชเธฑเธเธเธฒ'},
+    {id:'inc4_2', label:'4.2 เธเนเธฒเธเธฃเธดเธเธฒเธฃเธ—เธฒเธเธเธฒเธฃเนเธเธ—เธขเนเธเธฃเธ“เธตเธ—เธฑเธเธ•เธเธฃเธฃเธก'}
+  ]},
+  {id:'inc5', label:'5. เน€เธเธดเธเธฃเธฑเธเนเธญเธเธเธฒเธ เธชเธเธชเธ.', children:[
+    {id:'inc5_1', label:'5.1 เน€เธเธดเธเธเนเธฒเธขเธ•เธฃเธเธชเธดเธ—เธเธด เธญเธเธ—.'}
+  ]},
+  {id:'inc6', label:'6. เธ”เธญเธเน€เธเธตเนเธขเน€เธเธดเธเธเธฒเธเธเธเธฒเธเธฒเธฃ', leaf:true},
+  {id:'inc7', label:'7. เธฃเธฒเธขเธฃเธฑเธเธญเธทเนเธ', children:[
+    {id:'inc7_1', label:'7.1 เธเธเธเธญเธเธ—เธธเธเธซเธฅเธฑเธเธเธฃเธฐเธเธฑเธเธชเธธเธเธ เธฒเธเธ•เธณเธเธฅ'},
+    {id:'inc7_2', label:'7.2 เธเธเธเธญเธเธ—เธธเธ LTC'},
+    {id:'inc7_3', label:'7.3 เน€เธเธดเธเธชเธกเธ—เธเธเธฃเธฐเธเธฑเธเธชเธฑเธเธเธก (เธชเนเธงเธเธเธญเธเธฅเธนเธเธเนเธฒเธ)'},
+    {id:'inc7_4', label:'7.4 เธญเธทเนเธเน'}
+  ]}
+];
+
+const EXPENSE_TREE = [
+  {id:'e1', label:'1. เธเนเธฒเนเธเนเธเนเธฒเธขเธ”เนเธฒเธเธเธธเธเธฅเธฒเธเธฃ', children:[
+    {id:'e1_1', label:'- เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเธเธฅเธธเนเธกเธงเธดเธเธฒเธเธตเธ (เธเธ., เธ—เธฑเธเธ•เธฒเธฏ, เธเธงเธช., เธเธ.เธชเธ.)', note:'เน€เธ—เนเธฒเธเธฑเธเธฃเธฒเธขเธฃเธฑเธ'},
+    {id:'e1_2', label:'- เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเนเธเธ—เธขเนเนเธเธเนเธ—เธข'},
+    {id:'e1_3', label:'- เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ'},
+    {id:'e1_4', label:'- เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเธเธนเนเธเนเธงเธขเน€เธซเธฅเธทเธญเธเธเนเธเน'},
+    {id:'e1_5', label:'- เธเนเธฒเธเนเธฒเธเธฅเธนเธเธเนเธฒเธเธ—เธณเธเธงเธฒเธกเธชเธฐเธญเธฒเธ”'}
+  ]},
+  {id:'e2', label:'2. เธเนเธฒเธ•เธญเธเนเธ—เธ', children:[
+    {id:'e2_1', label:'- เธเนเธฒเธ•เธญเธเนเธ—เธเธเธฒเธฃเธเธเธดเธเธฑเธ•เธดเธเธฒเธเธเธญเธเน€เธงเธฅเธฒเธฃเธฒเธเธเธฒเธฃ'},
+    {id:'e2_2', label:'- เธเนเธฒเธ•เธญเธเนเธ—เธ เธเธ•เธช.'},
+    {id:'e2_3', label:'- เธเนเธฒเธ•เธญเธเนเธ—เธเธเธฒเธฃเธเธเธดเธเธฑเธ•เธดเธเธฒเธเนเธเธชเธ–เธฒเธเธตเธญเธเธฒเธกเธฑเธข (เธ.11)', note:'เน€เธ—เนเธฒเธเธฑเธเธฃเธฒเธขเธฃเธฑเธ'}
+  ]},
+  {id:'e3', label:'3. เธเนเธฒเนเธเนเธชเธญเธข', children:[
+    {id:'e3_1', label:'- เน€เธเธดเธเธชเธกเธ—เธเธเธฃเธฐเธเธฑเธเธชเธฑเธเธเธกเธชเนเธงเธเธเธญเธเธเธฒเธขเธเนเธฒเธ'},
+    {id:'e3_2', label:'- เธเนเธฒเนเธเนเธเนเธฒเธขเนเธเธเธฒเธฃเน€เธ”เธดเธเธ—เธฒเธเนเธเธฃเธฒเธเธเธฒเธฃ'},
+    {id:'e3_3', label:'- เธเนเธฒเธเนเธญเธกเนเธเธกเธขเธฒเธเธเธฒเธซเธเธฐ'},
+    {id:'e3_4', label:'- เธเนเธฒเธเนเธญเธกเนเธเธกเธเธฃเธธเธ เธฑเธ“เธ‘เนเธ—เธฒเธเธเธฒเธฃเนเธเธ—เธขเน'},
+    {id:'e3_5', label:'- เธเนเธฒเธเนเธญเธกเนเธเธกเธเธฃเธธเธ เธฑเธ“เธ‘เน'},
+    {id:'e3_6', label:'- เธเนเธฒเธเนเธญเธกเนเธเธกเธชเธดเนเธเธเนเธญเธชเธฃเนเธฒเธ'},
+    {id:'e3_7', label:'- เธเนเธฒเธเนเธฒเธเน€เธซเธกเธฒเธเธฃเธดเธเธฒเธฃเธญเธทเนเธเน'}
+  ]},
+  {id:'e4', label:'4. เธเนเธฒเธงเธฑเธชเธ”เธธ', children:[
+    {id:'e4_1', label:'- เธงเธฑเธชเธ”เธธเธชเธณเธเธฑเธเธเธฒเธ'},
+    {id:'e4_2', label:'- เธงเธฑเธชเธ”เธธเธขเธฒเธเธเธฒเธซเธเธฐเนเธฅเธฐเธเธเธชเนเธ'},
+    {id:'e4_3', label:'- เธงเธฑเธชเธ”เธธเน€เธเธทเนเธญเน€เธเธฅเธดเธเนเธฅเธฐเธซเธฅเนเธญเธฅเธทเนเธ'},
+    {id:'e4_4', label:'- เธงเธฑเธชเธ”เธธเนเธเธเนเธฒเนเธฅเธฐเธงเธดเธ—เธขเธธ'},
+    {id:'e4_5', label:'- เธงเธฑเธชเธ”เธธเนเธเธฉเธ“เธฒเนเธฅเธฐเน€เธเธขเนเธเธฃเน'},
+    {id:'e4_6', label:'- เธงเธฑเธชเธ”เธธเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน'},
+    {id:'e4_7', label:'- เธงเธฑเธชเธ”เธธเธเธฒเธเธเนเธฒเธเธเธฒเธเธเธฃเธฑเธง'}
+  ]},
+  {id:'e5', label:'5. เธเนเธฒเธชเธฒเธเธฒเธฃเธ“เธนเธเนเธ เธ', children:[
+    {id:'e5_1', label:'- เธเนเธฒเนเธเธเนเธฒ'},
+    {id:'e5_2', label:'- เธเนเธฒเธเนเธณเธเธฃเธฐเธเธฒ'},
+    {id:'e5_3', label:'- เธเนเธฒเนเธ—เธฃเธจเธฑเธเธ—เน'},
+    {id:'e5_4', label:'- เธเนเธฒเธเธฃเธดเธเธฒเธฃเธชเธทเนเธญเธชเธฒเธฃเนเธฅเธฐเนเธ—เธฃเธเธกเธเธฒเธเธก'}
+  ]},
+  {id:'e6', label:'6. เธเนเธฒเธเธฃเธธเธ เธฑเธ“เธ‘เน', leaf:true, note:'เธ”เธนเธ•เธฒเธฃเธฒเธเธ—เธตเน 5'},
+  {id:'e7', label:'7. เธเนเธฒเธ—เธตเนเธ”เธดเธเนเธฅเธฐเธชเธดเนเธเธเนเธญเธชเธฃเนเธฒเธ', leaf:true, note:'เธ”เธนเธ•เธฒเธฃเธฒเธเธ—เธตเน 5'},
+  {id:'e8', label:'8. เธเนเธฒเนเธเนเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธญเธทเนเธ', children:[
+    {id:'e8_1', label:'- เธเนเธฒเนเธเนเธเนเธฒเธขเนเธเธฃเธเธเธฒเธฃเธเธญเธเธ—เธธเธเธซเธฅเธฑเธเธเธฃเธฐเธเธฑเธเธชเธธเธเธ เธฒเธเธ•เธณเธเธฅ'},
+    {id:'e8_2', label:'- เธเนเธฒเนเธเนเธเนเธฒเธขเนเธเธฃเธเธเธฒเธฃ LTC'},
+    {id:'e8_3', label:'- เธเนเธฒเนเธเนเธเนเธฒเธขเนเธเธฃเธเธเธฒเธฃ (เน€เธเธดเธเธเธณเธฃเธธเธ)', note:'เธ”เธนเธ•เธฒเธฃเธฒเธเธ—เธตเน 4'}
+  ]}
+];
+
+const CAPITAL_CATS = [
+  'เธเธฃเธธเธ เธฑเธ“เธ‘เนเธชเธณเธเธฑเธเธเธฒเธ','เธเธฃเธธเธ เธฑเธ“เธ‘เนเธขเธฒเธเธเธฒเธซเธเธฐเนเธฅเธฐเธเธเธชเนเธ','เธเธฃเธธเธ เธฑเธ“เธ‘เนเนเธเธฉเธ“เธฒเนเธฅเธฐเน€เธเธขเนเธเธฃเน',
+  'เธเธฃเธธเธ เธฑเธ“เธ‘เนเนเธเธเนเธฒเนเธฅเธฐเธงเธดเธ—เธขเธธ','เธเธฃเธธเธ เธฑเธ“เธ‘เนเธเธฒเธเธเนเธฒเธเนเธฅเธฐเธเธฒเธเธเธฃเธฑเธง','เธเธฃเธธเธ เธฑเธ“เธ‘เนเธเธฒเธฃเนเธเธ—เธขเน',
+  'เธเธฃเธธเธ เธฑเธ“เธ‘เนเธเธญเธกเธเธดเธงเน€เธ•เธญเธฃเน','เธเธฃเธธเธ เธฑเธ“เธ‘เนเธญเธทเนเธเน','เธเนเธฒเธ—เธตเนเธ”เธดเธ','เธเนเธฒเธเนเธญเธชเธฃเนเธฒเธ'
+];
+
+const PERSONNEL = [
+  {group:'1. เธเนเธฒเธฃเธฒเธเธเธฒเธฃ', prefix:'p1', roles:['เธเธฑเธเธงเธดเธเธฒเธเธฒเธฃเธชเธฒเธเธฒเธฃเธ“เธชเธธเธ','เธเธขเธฒเธเธฒเธฅเธงเธดเธเธฒเธเธตเธ','เน€เธเนเธฒเธเธเธฑเธเธเธฒเธเธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธเธธเธกเธเธ','เน€เธเนเธฒเธเธเธฑเธเธเธฒเธเธ—เธฑเธเธ•เธชเธฒเธเธฒเธฃเธ“เธชเธธเธ','เธญเธทเนเธเน']},
+  {group:'2. เธฅเธนเธเธเนเธฒเธเธเธฅเธธเนเธกเธงเธดเธเธฒเธเธตเธ / เธเธเธช.', prefix:'p2', roles:['เธเธฑเธเธงเธดเธเธฒเธเธฒเธฃเธชเธฒเธเธฒเธฃเธ“เธชเธธเธ','เธเธขเธฒเธเธฒเธฅเธงเธดเธเธฒเธเธตเธ','เน€เธเนเธฒเธเธเธฑเธเธเธฒเธเธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธเธธเธกเธเธ','เน€เธเนเธฒเธเธเธฑเธเธเธฒเธเธ—เธฑเธเธ•เธชเธฒเธเธฒเธฃเธ“เธชเธธเธ','เธญเธทเนเธเน']},
+  {group:'3. เธฅเธนเธเธเนเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธ', prefix:'p3', roles:['เธเธฑเธเธ—เธถเธเธเนเธญเธกเธนเธฅ','เนเธเธ—เธขเนเนเธเธเนเธ—เธข','เธ—เธณเธเธงเธฒเธกเธชเธฐเธญเธฒเธ”','เธญเธทเนเธเน']}
+];
+
+const PAGES = [
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 1', title:'เธเนเธญเธกเธนเธฅเธ—เธฑเนเธงเนเธ (เธเธ)', desc:'เธฃเธฐเธเธธเธเนเธญเธกเธนเธฅเธชเธ–เธฒเธเธเธฃเธดเธเธฒเธฃเนเธฅเธฐเธเธนเนเธฅเธเธเธฒเธกเนเธเนเธเธ'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 2', title:'เธ•เธฒเธฃเธฒเธเธ—เธตเน 1 ยท เธชเธ–เธดเธ•เธดเน€เธเธดเธเธเธณเธฃเธธเธเธขเนเธญเธเธซเธฅเธฑเธ 5 เธเธต', desc:'เธฃเธฒเธขเธเธฒเธฃเธฃเธฑเธโ€“เธเนเธฒเธขเน€เธเธดเธเธเธณเธฃเธธเธ เธเธต 2565โ€“2569'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 3', title:'เธ•เธฒเธฃเธฒเธเธ—เธตเน 2 ยท เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต 2570', desc:'เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธเนเธขเธเธ•เธฒเธกเนเธซเธฅเนเธเธ—เธตเนเธกเธฒ'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 4', title:'เธ•เธฒเธฃเธฒเธเธ—เธตเน 3 ยท เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด', desc:'เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด เธเธต 2570'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 5', title:'เธ•เธฒเธฃเธฒเธเธ—เธตเน 4 ยท เธฃเธฒเธขเธเนเธฒเธขเธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ', desc:'เนเธเธฃเธเธเธฒเธฃเธ—เธตเนเนเธเนเธเนเธฒเธขเธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธ'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 6', title:'เธ•เธฒเธฃเธฒเธเธ—เธตเน 5 ยท เธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ (Capital Cost)', desc:'เธเธฃเธธเธ เธฑเธ“เธ‘เน เธ—เธตเนเธ”เธดเธเนเธฅเธฐเธชเธดเนเธเธเนเธญเธชเธฃเนเธฒเธ'},
+  {eyebrow:'เธชเนเธงเธเธ—เธตเน 7', title:'เธชเธฃเธธเธเนเธเธเธฏ เนเธฅเธฐเธญเธฑเธ•เธฃเธฒเธเธณเธฅเธฑเธ', desc:'เธ•เธฃเธงเธเธชเธญเธเธขเธญเธ”เธฃเธงเธกเนเธฅเธฐเธเธฑเธเธ—เธถเธเธญเธฑเธ•เธฃเธฒเธเธณเธฅเธฑเธเธเธธเธเธฅเธฒเธเธฃ'},
+  {eyebrow:'เน€เธชเธฃเนเธเธชเธดเนเธ', title:'เธชเนเธเธญเธญเธเน€เธญเธเธชเธฒเธฃ', desc:'เธ”เธฒเธงเธเนเนเธซเธฅเธ” Excel / PDF เธซเธฃเธทเธญเธชเธฑเนเธเธเธดเธกเธเน'}
+];
+
+/* =========================================================================
+   เธชเธ–เธฒเธเธฐเธฃเธฐเธเธ
+   ========================================================================= */
+let state = {};          // เน€เธเนเธเธเนเธฒเธ—เธฑเนเธเธซเธกเธ”เธ•เธฒเธก field id
+let currentPage = 0;
+let savedPages = new Set();
+let currentFacility = '';
+
+const $ = id => document.getElementById(id);
+const money = n => (Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const parseNum = v => { const n = parseFloat(String(v??'').replace(/,/g,'')); return isNaN(n)?0:n; };
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* =========================================================================
+   เน€เธฃเธดเนเธกเธ•เนเธ
+   ========================================================================= */
+window.addEventListener('DOMContentLoaded', init);
+
+function init(){
+  $('f_year').value = CONFIG.YEAR;
+  $('f_district').value = CONFIG.DISTRICT;
+  $('f_province').value = CONFIG.PROVINCE;
+  $('subTitle').textContent = `เธเธฃเธฐเธเธณเธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ เธ.เธจ. ${CONFIG.YEAR} ยท เธญเธณเน€เธ เธญ${CONFIG.DISTRICT} เธเธฑเธเธซเธงเธฑเธ”${CONFIG.PROVINCE}`;
+
+  // เน€เธฅเธทเธญเธเธชเธ–เธฒเธเธเธฃเธดเธเธฒเธฃ
+  const sel = $('facilitySel');
+  sel.innerHTML = CONFIG.FACILITIES.map(f=>`<option>${esc(f)}</option>`).join('');
+  sel.addEventListener('change', switchFacility);
+
+  buildStepper();
+  buildStatsTable();
+  buildIncomeTable();
+  buildExpenseTable();
+  buildProjectTable();
+  buildCapitalTable();
+  buildPersonnel();
+  buildSummary();
+  addProjectRow();
+  addCapitalRow();
+
+  document.addEventListener('input', e=>{
+    if(e.target.matches('input,select')) { recalcAll(); }
+  });
+
+  switchFacility();      // เนเธซเธฅเธ”เธชเธ–เธฒเธเธเธฃเธดเธเธฒเธฃเนเธฃเธ
+  showPage(0);
+}
+
+function switchFacility(){
+  currentFacility = $('facilitySel').value;
+  $('f_facility').value = currentFacility;
+  savedPages = new Set();
+  loadDraft();           // เนเธซเธฅเธ”เธเธฒเธเน€เธเธฃเธทเนเธญเธ + เน€เธเธดเธฃเนเธเน€เธงเธญเธฃเน
+  recalcAll();
+  updateProgress();
+  buildStepper();
+}
+
+/* =========================================================================
+   เธชเธฃเนเธฒเธ Stepper เนเธฅเธฐเธเธฒเธฃเธเธณเธ—เธฒเธ
+   ========================================================================= */
+function buildStepper(){
+  const nav = $('stepper');
+  nav.innerHTML = PAGES.slice(0,7).map((p,i)=>{
+    const done = savedPages.has(i) ? 'done':'';
+    const active = i===currentPage ? 'active':'';
+    return `<button class="step ${active} ${done}" onclick="jumpTo(${i})">
+      <span class="n">${savedPages.has(i)?'โ“':i+1}</span>${esc(p.title.split(' ยท ')[0])}</button>`;
+  }).join('');
+}
+
+function showPage(i){
+  currentPage = i;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = document.querySelector(`.page[data-page="${i}"]`);
+  if(pg) pg.classList.add('active');
+  const meta = PAGES[i];
+  $('pgEyebrow').textContent = meta.eyebrow;
+  $('pgTitle').textContent = meta.title;
+  $('pgDesc').textContent = meta.desc;
+  $('pgBadge').textContent = i<7 ? `${i+1} / 7` : 'เธชเนเธเธญเธญเธ';
+
+  $('btnPrev').style.visibility = i===0 ? 'hidden':'visible';
+  const bn = $('btnSaveNext');
+  if(i===6){ bn.textContent='เธเธฑเธเธ—เธถเธเนเธฅเธฐเนเธเธซเธเนเธฒเธชเนเธเธญเธญเธ โ’'; bn.style.display='inline-flex'; }
+  else if(i===7){ bn.style.display='none'; }
+  else { bn.textContent='เธเธฑเธเธ—เธถเธเนเธฅเธฐเธ–เธฑเธ”เนเธ โ’'; bn.style.display='inline-flex'; }
+
+  buildStepper();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function jumpTo(i){ showPage(i); }
+function goPrev(){ if(currentPage>0) showPage(currentPage-1); }
+
+function saveAndNext(){
+  collectPage(currentPage);
+  saveToServer(()=>{
+    savedPages.add(currentPage);
+    updateProgress();
+    if(currentPage<7) showPage(currentPage+1);
+  });
+}
+
+/* =========================================================================
+   เธชเธฃเนเธฒเธเธ•เธฒเธฃเธฒเธเธ•เนเธฒเธเน
+   ========================================================================= */
+function buildStatsTable(){
+  const tb = $('tblStats').querySelector('tbody');
+  tb.innerHTML = STAT_ROWS.map((r,i)=>`
+    <tr>
+      <td>${r.label}</td>
+      <td class="num"><input id="st_${r.key}_bf" ${i>0?'readonly':''} placeholder="0"></td>
+      <td class="num"><input id="st_${r.key}_in" placeholder="0"></td>
+      <td class="num"><input id="st_${r.key}_out" placeholder="0"></td>
+      <td class="num"><input id="st_${r.key}_bal" readonly placeholder="0"></td>
+      <td><input class="txt" id="st_${r.key}_note" placeholder=""></td>
+    </tr>`).join('');
+}
+
+function renderTreeRows(tree, cols){
+  // cols = array of {suffix} numeric input columns
+  let html='';
+  tree.forEach(node=>{
+    if(node.children){
+      html += `<tr class="row-head"><td>${esc(node.label)}</td>`+
+        cols.map(c=>`<td class="num"><input id="${node.id}_${c.suffix}" readonly placeholder="0"></td>`).join('')+
+        (cols.noteCol?`<td class="note-cell"></td>`:'')+`</tr>`;
+      node.children.forEach(ch=>{
+        html += `<tr class="row-sub"><td>${esc(ch.label)}</td>`+
+          cols.map(c=>`<td class="num"><input id="${ch.id}_${c.suffix}" placeholder="0"></td>`).join('')+
+          (cols.noteCol?`<td class="note-cell">${esc(ch.note||'')}</td>`:'')+`</tr>`;
+      });
+    } else {
+      html += `<tr><td>${esc(node.label)}</td>`+
+        cols.map(c=>`<td class="num"><input id="${node.id}_${c.suffix}" placeholder="0"></td>`).join('')+
+        (cols.noteCol?`<td class="note-cell">${esc(node.note||'')}</td>`:'')+`</tr>`;
+    }
+  });
+  return html;
+}
+
+function buildIncomeTable(){
+  const tb = $('tblIncome').querySelector('tbody');
+  const cols=[{suffix:'y69'},{suffix:'y70'}];
+  tb.innerHTML = renderTreeRows(INCOME_TREE, cols) +
+    `<tr class="row-total"><td>เธฃเธงเธกเธฃเธฒเธขเธฃเธฑเธ</td>
+      <td class="num" id="inc_total_y69">0.00</td>
+      <td class="num" id="inc_total_y70">0.00</td></tr>`;
+}
+
+function buildExpenseTable(){
+  const tb = $('tblExpense').querySelector('tbody');
+  const cols=[{suffix:'debt'},{suffix:'y69'},{suffix:'y70'}]; cols.noteCol=true;
+  tb.innerHTML = renderTreeRows(EXPENSE_TREE, cols) +
+    `<tr class="row-total"><td>เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ</td>
+      <td class="num" id="exp_total_debt">0.00</td>
+      <td class="num" id="exp_total_y69">0.00</td>
+      <td class="num" id="exp_total_y70">0.00</td><td></td></tr>`;
+}
+
+let projectSeq=0;
+function buildProjectTable(){ $('tblProjects').querySelector('tbody').innerHTML=''; }
+function addProjectRow(name='',amount=''){
+  const tb=$('tblProjects').querySelector('tbody');
+  const id='pj'+(projectSeq++);
+  const tr=document.createElement('tr');
+  tr.id=id;
+  tr.innerHTML=`<td class="center rownum"></td>
+    <td><input class="txt" data-pj-name value="${esc(name)}" placeholder="เธเธทเนเธญเนเธเธฃเธเธเธฒเธฃ"></td>
+    <td class="num"><input data-pj-amt value="${esc(amount)}" placeholder="0"></td>
+    <td class="center"><button class="mini-btn danger" onclick="this.closest('tr').remove();renumber();recalcAll()">โ•</button></td>`;
+  tb.appendChild(tr); renumber();
+}
+
+let capitalSeq=0;
+function buildCapitalTable(){ $('tblCapital').querySelector('tbody').innerHTML=''; }
+function addCapitalRow(cat='',item='',debt='',c4='',c5=''){
+  const tb=$('tblCapital').querySelector('tbody');
+  const id='cap'+(capitalSeq++);
+  const tr=document.createElement('tr');
+  tr.id=id;
+  const opts=CAPITAL_CATS.map(c=>`<option ${c===cat?'selected':''}>${esc(c)}</option>`).join('');
+  tr.innerHTML=`<td class="center rownum"></td>
+    <td><select data-cap-cat>${opts}</select></td>
+    <td><input class="txt" data-cap-item value="${esc(item)}" placeholder="เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”"></td>
+    <td class="num"><input data-cap-debt value="${esc(debt)}" placeholder="0"></td>
+    <td class="num"><input data-cap-c4 value="${esc(c4)}" placeholder="0"></td>
+    <td class="num"><input data-cap-c5 value="${esc(c5)}" placeholder="0"></td>
+    <td class="center"><button class="mini-btn danger" onclick="this.closest('tr').remove();renumber();recalcAll()">โ•</button></td>`;
+  tb.appendChild(tr); renumber();
+}
+
+function renumber(){
+  document.querySelectorAll('#tblProjects tbody tr').forEach((tr,i)=>{tr.querySelector('.rownum').textContent=i+1;});
+  document.querySelectorAll('#tblCapital tbody tr').forEach((tr,i)=>{tr.querySelector('.rownum').textContent=i+1;});
+}
+
+function buildPersonnel(){
+  $('personnelWrap').innerHTML = PERSONNEL.map(g=>`
+    <div style="margin-bottom:14px">
+      <div style="font-weight:600;color:var(--ink-soft);margin-bottom:8px">${esc(g.group)}</div>
+      <div class="grid c3">
+        ${g.roles.map((r,i)=>`
+          <div class="field">
+            <label>${esc(r)} <span class="hint">(เธเธ)</span></label>
+            <input id="${g.prefix}_${i}" placeholder="0" style="text-align:right">
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function buildSummary(){
+  $('summaryWrap').innerHTML = `
+    <div class="sum-row"><span class="lab">1. เน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญเธชเธธเธ—เธเธด (เธ“ 31 เธ.เธ. 2569)</span><span class="val" id="sm1">0.00</span></div>
+    <div class="sum-row"><span class="lab">2. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต 2570</span><span class="val" id="sm2">0.00</span></div>
+    <div class="sum-row"><span class="lab">3. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธเนเธฒเธข เธเธต 2570</span><span class="val" id="sm3">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.1 เธเธเธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃ</span><span class="val" id="sm31">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.1.1 เธเธเธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด (เธ•เธฒเธฃเธฒเธ 3)</span><span class="val" id="sm311">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.1.2 เธเธเธฃเธฒเธขเธเนเธฒเธขเธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ (เธ•เธฒเธฃเธฒเธ 4)</span><span class="val" id="sm312">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.2 เธเธเธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ</span><span class="val" id="sm32">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.2.1 เธเธฒเธเธเธเธฅเธเธ—เธธเธเธเธต 2569 เนเธฅเธฐเธเธตเธเนเธญเธเธฏ (เธ•เธฒเธฃเธฒเธ 5)</span><span class="val" id="sm321">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.2.2 เธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ (เธ•เธฒเธฃเธฒเธ 5)</span><span class="val" id="sm322">0.00</span></div>
+    <div class="sum-row lv2"><span class="lab">3.3 เธเธเธเธฅเธฒเธ (เธเธธเธเน€เธเธดเธ/เน€เธฃเนเธเธ”เนเธงเธ)</span><span class="val" id="sm33">0.00</span></div>
+    <div class="sum-row"><span class="lab">4. เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ (เธ•เธฒเธฃเธฒเธ 3)</span><span class="val" id="sm4">0.00</span></div>
+    <div class="sum-row grand"><span class="lab">5. เธเธฒเธ”เธเธฃเธฐเธกเธฒเธ“เน€เธเธดเธเธเธเน€เธซเธฅเธทเธญ เธ“ 30 เธ.เธข. 2570</span><span class="val" id="sm5">0.00</span></div>`;
+}
+
+/* =========================================================================
+   เธเธณเธเธงเธ“
+   ========================================================================= */
+function nodeValue(node, suffix){
+  if(node.children){
+    let s=0; node.children.forEach(ch=>{ s+=parseNum($(ch.id+'_'+suffix)?.value); });
+    const el=$(node.id+'_'+suffix); if(el) el.value = s? money(s):'';
+    return s;
+  }
+  return parseNum($(node.id+'_'+suffix)?.value);
+}
+
+function recalcAll(){
+  // เธ•เธฒเธฃเธฒเธ 1 : เธเธเน€เธซเธฅเธทเธญ = เธขเธเธกเธฒ + เธฃเธฑเธ - เธเนเธฒเธข, เธขเธเนเธเธเธตเธ–เธฑเธ”เนเธ
+  let carry=null;
+  STAT_ROWS.forEach((r,i)=>{
+    if(i>0 && carry!==null){ const bf=$(`st_${r.key}_bf`); if(bf) bf.value = carry? money(carry):''; }
+    const bf=parseNum($(`st_${r.key}_bf`)?.value);
+    const inc=parseNum($(`st_${r.key}_in`)?.value);
+    const out=parseNum($(`st_${r.key}_out`)?.value);
+    const bal=bf+inc-out;
+    const be=$(`st_${r.key}_bal`); if(be) be.value = bal? money(bal):'';
+    carry=bal;
+  });
+  const reserve = carry||0;   // เธเธเน€เธซเธฅเธทเธญ เธ“ เธ.เธ.2569 -> เธเนเธญ 1
+
+  // เธ•เธฒเธฃเธฒเธ 2 เธฃเธฒเธขเธฃเธฑเธ
+  let inc69=0,inc70=0;
+  INCOME_TREE.forEach(n=>{ inc69+=nodeValue(n,'y69'); inc70+=nodeValue(n,'y70'); });
+  $('inc_total_y69').textContent=money(inc69);
+  $('inc_total_y70').textContent=money(inc70);
+
+  // เธ•เธฒเธฃเธฒเธ 3 เธฃเธฒเธขเธเนเธฒเธข
+  let eDebt=0,e69=0,e70=0;
+  EXPENSE_TREE.forEach(n=>{ eDebt+=nodeValue(n,'debt'); e69+=nodeValue(n,'y69'); e70+=nodeValue(n,'y70'); });
+  $('exp_total_debt').textContent=money(eDebt);
+  $('exp_total_y69').textContent=money(e69);
+  $('exp_total_y70').textContent=money(e70);
+
+  // เธ•เธฒเธฃเธฒเธ 4 เนเธเธฃเธเธเธฒเธฃ
+  let pjTotal=0;
+  document.querySelectorAll('#tblProjects tbody tr').forEach(tr=>{ pjTotal+=parseNum(tr.querySelector('[data-pj-amt]').value); });
+
+  // เธ•เธฒเธฃเธฒเธ 5 เธฅเธเธ—เธธเธ
+  let capDebt=0,cap4=0,cap5=0;
+  document.querySelectorAll('#tblCapital tbody tr').forEach(tr=>{
+    capDebt+=parseNum(tr.querySelector('[data-cap-debt]').value);
+    cap4+=parseNum(tr.querySelector('[data-cap-c4]').value);
+    cap5+=parseNum(tr.querySelector('[data-cap-c5]').value);
+  });
+
+  // เธชเธฃเธธเธ
+  const s311=e70, s312=pjTotal, s31=s311+s312;
+  const s321=cap4, s322=cap5, s32=s321+s322;
+  const s33=parseNum($('f_central')?.value);
+  const s3=s31+s32+s33;
+  const debt=eDebt;
+  const s5 = reserve + inc70 - s3 - debt;
+
+  setTxt('sm1',reserve); setTxt('sm2',inc70); setTxt('sm3',s3);
+  setTxt('sm31',s31); setTxt('sm311',s311); setTxt('sm312',s312);
+  setTxt('sm32',s32); setTxt('sm321',s321); setTxt('sm322',s322); setTxt('sm33',s33);
+  setTxt('sm4',debt); setTxt('sm5',s5);
+
+  // เธ•เธฃเธงเธเธเธ
+  const rc=$('ruleCheck');
+  if(rc){
+    let html='';
+    if(s3 > inc70 && inc70>0){
+      html += `<div class="callout warn">โ ๏ธ เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธเนเธฒเธข (${money(s3)}) เน€เธเธดเธเธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต 2570 (${money(inc70)}) โ€” เธ•เธฒเธกเธซเธฅเธฑเธเน€เธเธ“เธ‘เนเธ•เนเธญเธเนเธกเนเน€เธเธดเธเธฃเธฒเธขเธฃเธฑเธ เน€เธงเนเธเนเธ•เนเน€เธเนเธฒเน€เธเธทเนเธญเธเนเธเน€เธเธดเธเธเธเน€เธซเธฅเธทเธญ</div>`;
+    }
+    if(s33 > inc70*0.1 && inc70>0){
+      html += `<div class="callout warn">โ ๏ธ เธเธเธเธฅเธฒเธ (${money(s33)}) เน€เธเธดเธ 10% เธเธญเธเธฃเธฒเธขเธฃเธฑเธ (${money(inc70*0.1)})</div>`;
+    }
+    if(!html && inc70>0){
+      html = `<div class="callout ok">โ“ เธขเธญเธ”เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธญเธขเธนเนเนเธเน€เธเธ“เธ‘เนเน€เธเธทเนเธญเธเธ•เนเธ (เธฃเธฒเธขเธเนเธฒเธขเนเธกเนเน€เธเธดเธเธฃเธฒเธขเธฃเธฑเธ)</div>`;
+    }
+    rc.innerHTML=html;
+  }
+}
+function setTxt(id,v){ const el=$(id); if(el) el.textContent=money(v); }
+
+/* =========================================================================
+   เน€เธเนเธ / เนเธซเธฅเธ” เธเนเธญเธกเธนเธฅ
+   ========================================================================= */
+function collectPage(){
+  // เน€เธเนเธเธ—เธธเธ input/select เธ—เธตเนเธกเธต id เธซเธฃเธทเธญ data-attr เธฅเธ state (เน€เธเนเธเธ—เธฑเนเธเธซเธกเธ”เน€เธเธทเนเธญเธเธงเธฒเธกเธเนเธฒเธข)
+  const data={};
+  document.querySelectorAll('#appMain input[id], #appMain select[id]').forEach(el=>{ data[el.id]=el.value; });
+  // เธ•เธฒเธฃเธฒเธเนเธเธ dynamic
+  data.projects=[];
+  document.querySelectorAll('#tblProjects tbody tr').forEach(tr=>{
+    data.projects.push({name:tr.querySelector('[data-pj-name]').value, amount:tr.querySelector('[data-pj-amt]').value});
+  });
+  data.capital=[];
+  document.querySelectorAll('#tblCapital tbody tr').forEach(tr=>{
+    data.capital.push({
+      cat:tr.querySelector('[data-cap-cat]').value, item:tr.querySelector('[data-cap-item]').value,
+      debt:tr.querySelector('[data-cap-debt]').value, c4:tr.querySelector('[data-cap-c4]').value, c5:tr.querySelector('[data-cap-c5]').value
+    });
+  });
+  state = data;
+  return data;
+}
+
+function applyState(data){
+  if(!data) return;
+  Object.keys(data).forEach(k=>{
+    if(k==='projects'||k==='capital') return;
+    const el=$(k); if(el) el.value=data[k];
+  });
+  // projects
+  if(Array.isArray(data.projects)){
+    $('tblProjects').querySelector('tbody').innerHTML='';
+    if(data.projects.length===0) addProjectRow();
+    else data.projects.forEach(p=>addProjectRow(p.name,p.amount));
+  }
+  if(Array.isArray(data.capital)){
+    $('tblCapital').querySelector('tbody').innerHTML='';
+    if(data.capital.length===0) addCapitalRow();
+    else data.capital.forEach(c=>addCapitalRow(c.cat,c.item,c.debt,c.c4,c.c5));
+  }
+  recalcAll();
+}
+
+function draftKey(){ return `plan2570::${currentFacility}`; }
+
+function saveLocal(){
+  try{ localStorage.setItem(draftKey(), JSON.stringify({data:state,saved:[...savedPages]})); }catch(e){}
+}
+function loadDraft(){
+  // 1) เนเธซเธฅเธ”เธเธฒเธเน€เธเธฃเธทเนเธญเธเธเนเธญเธ (เน€เธฃเนเธง)
+  let local=null;
+  try{ const raw=localStorage.getItem(draftKey()); if(raw) local=JSON.parse(raw); }catch(e){}
+  if(local){ applyState(local.data); savedPages=new Set(local.saved||[]); updateProgress(); }
+  else { resetForm(); }
+  // 2) เนเธซเธฅเธ”เธเธฒเธเน€เธเธดเธฃเนเธเน€เธงเธญเธฃเน (เธ—เธฑเธเธเธญเธเน€เธเธฃเธทเนเธญเธเธ–เนเธฒเธกเธต)
+  if(CONFIG.WEB_APP_URL){
+    fetch(`${CONFIG.WEB_APP_URL}?action=load&facility=${encodeURIComponent(currentFacility)}&year=${CONFIG.YEAR}`)
+      .then(r=>r.json()).then(res=>{
+        if(res && res.ok && res.data){
+          applyState(res.data);
+          if(res.savedPages) savedPages=new Set(res.savedPages);
+          updateProgress(); buildStepper();
+        }
+      }).catch(()=>{});
+  }
+}
+
+function resetForm(){
+  document.querySelectorAll('#appMain input:not([readonly]), #appMain select').forEach(el=>{
+    if(el.id==='facilitySel') return;
+    if(el.id==='f_proposer_pos'||el.id==='f_approver1_pos') return; // เธเธเธเนเธฒเน€เธฃเธดเนเธกเธ•เนเธ
+    el.value='';
+  });
+  $('tblProjects').querySelector('tbody').innerHTML=''; addProjectRow();
+  $('tblCapital').querySelector('tbody').innerHTML=''; addCapitalRow();
+  recalcAll();
+}
+
+function saveToServer(cb){
+  collectPage();
+  saveLocal();
+  if(!CONFIG.WEB_APP_URL){
+    toast('เธเธฑเธเธ—เธถเธเนเธเน€เธเธฃเธทเนเธญเธเนเธฅเนเธง (เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒ URL เน€เธเธดเธฃเนเธเน€เธงเธญเธฃเน)','ok');
+    if(cb) cb(); return;
+  }
+  const payload={action:'save', facility:currentFacility, year:CONFIG.YEAR, data:state, savedPages:[...savedPages, currentPage]};
+  fetch(CONFIG.WEB_APP_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  }).then(r=>r.json()).then(res=>{
+    if(res && res.ok){ toast('เธเธฑเธเธ—เธถเธเธฅเธ Google Sheet เนเธฅเนเธง','ok'); }
+    else { toast('เธเธฑเธเธ—เธถเธเนเธเน€เธเธฃเธทเนเธญเธเนเธฅเนเธง เนเธ•เนเน€เธเธดเธฃเนเธเน€เธงเธญเธฃเนเนเธเนเธเธเนเธญเธเธดเธ”เธเธฅเธฒเธ”','err'); }
+    if(cb) cb();
+  }).catch(()=>{
+    toast('เธเธฑเธเธ—เธถเธเนเธเน€เธเธฃเธทเนเธญเธเนเธฅเนเธง (เน€เธเธทเนเธญเธกเธ•เนเธญเน€เธเธดเธฃเนเธเน€เธงเธญเธฃเนเนเธกเนเนเธ”เน)','err');
+    if(cb) cb();
+  });
+}
+
+function updateProgress(){
+  const n=[...savedPages].filter(p=>p<7).length;
+  $('progressText').textContent=`เธเธฑเธเธ—เธถเธเนเธฅเนเธง ${n}/7`;
+  $('progressBar').style.width=(n/7*100)+'%';
+}
+
+/* =========================================================================
+   Toast
+   ========================================================================= */
+let toastTimer;
+function toast(msg,type=''){
+  const t=$('toast'); t.className='toast show '+type; t.textContent=msg;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='toast '+type,2600);
+}
+
+/* =========================================================================
+   เธชเธฃเนเธฒเธเน€เธญเธเธชเธฒเธฃเธเธดเธกเธเน / PDF
+   ========================================================================= */
+function buildPrintDoc(){
+  collectPage();
+  const g=id=>$(id)?$(id).textContent:'';
+  const v=id=>$(id)?$(id).value:'';
+  const headBlock=`<div class="head">
+    <h2>เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ</h2>
+    <div class="l2">${esc(currentFacility)}</div>
+    <div class="l3">เธญเธณเน€เธ เธญ${esc(CONFIG.DISTRICT)} เธเธฑเธเธซเธงเธฑเธ”${esc(CONFIG.PROVINCE)}</div>
+    <div class="l3">เธเธฃเธฐเธเธณเธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ เธ.เธจ. ${CONFIG.YEAR}</div></div>`;
+
+  const signBlock=`<div class="sign">
+    <div class="col"><div class="line">เธฅเธเธเธทเนเธญ...................................เธเธนเนเน€เธชเธเธญเนเธเธ</div>
+      <div class="line">( ${esc(v('f_proposer'))||'.......................................'} )</div>
+      <div>${esc(v('f_proposer_pos'))}</div></div>
+    <div class="col"><div class="line">เธฅเธเธเธทเนเธญ...................................เธเธนเนเน€เธซเนเธเธเธญเธเนเธเธ</div>
+      <div class="line">( ${esc(v('f_approver1'))||'.......................................'} )</div>
+      <div>${esc(v('f_approver1_pos'))}</div></div>
+    <div class="col"><div class="line">เธฅเธเธเธทเนเธญ...................................เธเธนเนเธญเธเธธเธกเธฑเธ•เธดเนเธเธ</div>
+      <div class="line">( ${esc(v('f_approver2'))||'.......................................'} )</div>
+      <div>เธเธฒเธขเนเธเธ—เธขเนเธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธเธฑเธเธซเธงเธฑเธ”${esc(CONFIG.PROVINCE)}</div></div>
+  </div>`;
+
+  // เธเธ
+  let html=`<div class="doc"><div class="sheet">${headBlock}
+    <div style="text-align:center;margin-top:60px">${signBlock}</div>
+  </div>`;
+
+  // เธชเธฃเธธเธเนเธเธเธฏ
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธชเธฃเธธเธเนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ เธเธต ${CONFIG.YEAR}</div>
+    <table><tr><th style="text-align:left">เธฃเธฒเธขเธเธฒเธฃ</th><th>เธเธณเธเธงเธเน€เธเธดเธ (เธเธฒเธ—)</th></tr>
+    <tr><td>1. เน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญเธชเธธเธ—เธเธด (เธ“ 31 เธ.เธ. 2569)</td><td class="num">${g('sm1')}</td></tr>
+    <tr><td>2. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต ${CONFIG.YEAR}</td><td class="num">${g('sm2')}</td></tr>
+    <tr class="tot"><td>3. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธเนเธฒเธข เธเธต ${CONFIG.YEAR}</td><td class="num">${g('sm3')}</td></tr>
+    <tr><td>&nbsp;&nbsp;3.1 เธเธเธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃ</td><td class="num">${g('sm31')}</td></tr>
+    <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;3.1.1 เธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด</td><td class="num">${g('sm311')}</td></tr>
+    <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;3.1.2 เธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ</td><td class="num">${g('sm312')}</td></tr>
+    <tr><td>&nbsp;&nbsp;3.2 เธเธเธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ</td><td class="num">${g('sm32')}</td></tr>
+    <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;3.2.1 เธเธฒเธเธเธเธฅเธเธ—เธธเธเธเธต 69 เนเธฅเธฐเธเนเธญเธเธฏ</td><td class="num">${g('sm321')}</td></tr>
+    <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;3.2.2 เธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ</td><td class="num">${g('sm322')}</td></tr>
+    <tr><td>&nbsp;&nbsp;3.3 เธเธเธเธฅเธฒเธ</td><td class="num">${g('sm33')}</td></tr>
+    <tr><td>4. เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ</td><td class="num">${g('sm4')}</td></tr>
+    <tr class="tot"><td>5. เธเธฒเธ”เธเธฃเธฐเธกเธฒเธ“เน€เธเธดเธเธเธเน€เธซเธฅเธทเธญ เธ“ 30 เธ.เธข. ${CONFIG.YEAR}</td><td class="num">${g('sm5')}</td></tr>
+    </table>${signBlock}</div>`;
+
+  // เธ•เธฒเธฃเธฒเธ 1
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธ•เธฒเธฃเธฒเธเธ—เธตเน 1 เธชเธ–เธดเธ•เธดเน€เธเธดเธเธเธณเธฃเธธเธเธขเนเธญเธเธซเธฅเธฑเธ 5 เธเธต</div>
+    <table><tr><th>เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“</th><th>เธขเธญเธ”เธขเธเธกเธฒ</th><th>เธฃเธฒเธขเธฃเธฑเธ</th><th>เธฃเธฒเธขเธเนเธฒเธข</th><th>เธขเธญเธ”เธเธเน€เธซเธฅเธทเธญ</th><th>เธซเธกเธฒเธขเน€เธซเธ•เธธ</th></tr>
+    ${STAT_ROWS.map(r=>`<tr><td class="ctr">${r.label}</td>
+      <td class="num">${fmtCell(v('st_'+r.key+'_bf'))}</td>
+      <td class="num">${fmtCell(v('st_'+r.key+'_in'))}</td>
+      <td class="num">${fmtCell(v('st_'+r.key+'_out'))}</td>
+      <td class="num">${fmtCell(v('st_'+r.key+'_bal'))}</td>
+      <td>${esc(v('st_'+r.key+'_note'))}</td></tr>`).join('')}
+    </table>${signBlock}</div>`;
+
+  // เธ•เธฒเธฃเธฒเธ 2
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธ•เธฒเธฃเธฒเธเธ—เธตเน 2 เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต ${CONFIG.YEAR}</div>
+    <table><tr><th style="text-align:left">เธฃเธฒเธขเธเธฒเธฃเธฃเธฑเธ</th><th>เธฃเธฒเธขเธฃเธฑเธเธเธต 2569</th><th>เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธเธต ${CONFIG.YEAR}</th></tr>
+    ${treeToRows(INCOME_TREE,['y69','y70'])}
+    <tr class="tot"><td>เธฃเธงเธกเธฃเธฒเธขเธฃเธฑเธ</td><td class="num">${g('inc_total_y69')}</td><td class="num">${g('inc_total_y70')}</td></tr>
+    </table>${signBlock}</div>`;
+
+  // เธ•เธฒเธฃเธฒเธ 3
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธ•เธฒเธฃเธฒเธเธ—เธตเน 3 เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด เธเธต ${CONFIG.YEAR}</div>
+    <table><tr><th style="text-align:left">เธซเธกเธงเธ”/เธฃเธฒเธขเธเธฒเธฃ</th><th>เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ</th><th>เธฃเธฒเธขเธเนเธฒเธขเธเธต 69</th><th>เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธเธต ${CONFIG.YEAR}</th></tr>
+    ${treeToRows(EXPENSE_TREE,['debt','y69','y70'])}
+    <tr class="tot"><td>เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ</td><td class="num">${g('exp_total_debt')}</td><td class="num">${g('exp_total_y69')}</td><td class="num">${g('exp_total_y70')}</td></tr>
+    </table>${signBlock}</div>`;
+
+  // เธ•เธฒเธฃเธฒเธ 4
+  let pjRows=state.projects||[]; let pjTot=0;
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธ•เธฒเธฃเธฒเธเธ—เธตเน 4 เธฃเธฒเธขเธเนเธฒเธขเธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ เธเธต ${CONFIG.YEAR}</div>
+    <table><tr><th>เธฅเธณเธ”เธฑเธ</th><th style="text-align:left">เธเธทเนเธญเนเธเธฃเธเธเธฒเธฃ</th><th>เธเธณเธเธงเธเน€เธเธดเธ (เธเธฒเธ—)</th></tr>
+    ${pjRows.filter(p=>p.name||p.amount).map((p,i)=>{pjTot+=parseNum(p.amount);return `<tr><td class="ctr">${i+1}</td><td>${esc(p.name)}</td><td class="num">${fmtCell(p.amount)}</td></tr>`;}).join('')}
+    <tr class="tot"><td colspan="2">เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ</td><td class="num">${money(pjTot)}</td></tr>
+    </table>${signBlock}</div>`;
+
+  // เธ•เธฒเธฃเธฒเธ 5
+  let capRows=state.capital||[]; let cd=0,c4=0,c5=0;
+  html+=`<div class="sheet">${headBlock}<div class="sec">เธ•เธฒเธฃเธฒเธเธ—เธตเน 5 เธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ (Capital Cost) เธเธต ${CONFIG.YEAR}</div>
+    <table><tr><th>เธฅเธณเธ”เธฑเธ</th><th style="text-align:left">เธซเธกเธงเธ”</th><th style="text-align:left">เธฃเธฒเธขเธเธฒเธฃ</th><th>เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ</th><th>เนเธเนเธเธฒเธเธเธเธฅเธเธ—เธธเธ 69เธฏ</th><th>เนเธเนเธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ</th></tr>
+    ${capRows.filter(c=>c.item||c.debt||c.c4||c.c5).map((c,i)=>{cd+=parseNum(c.debt);c4+=parseNum(c.c4);c5+=parseNum(c.c5);return `<tr><td class="ctr">${i+1}</td><td>${esc(c.cat)}</td><td>${esc(c.item)}</td><td class="num">${fmtCell(c.debt)}</td><td class="num">${fmtCell(c.c4)}</td><td class="num">${fmtCell(c.c5)}</td></tr>`;}).join('')}
+    <tr class="tot"><td colspan="3">เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ</td><td class="num">${money(cd)}</td><td class="num">${money(c4)}</td><td class="num">${money(c5)}</td></tr>
+    </table>${signBlock}</div>`;
+
+  html+=`</div>`;
+  $('printArea').innerHTML=html;
+}
+function fmtCell(x){ const n=parseNum(x); return n? money(n):''; }
+function treeToRows(tree,suffixes){
+  let html='';
+  tree.forEach(node=>{
+    const vals=suffixes.map(s=>{ const el=$(node.id+'_'+s); return el?fmtCell(el.value):''; });
+    if(node.children){
+      html+=`<tr class="tot"><td style="text-align:left">${esc(node.label)}</td>${vals.map(x=>`<td class="num">${x}</td>`).join('')}</tr>`;
+      node.children.forEach(ch=>{
+        const cv=suffixes.map(s=>{const el=$(ch.id+'_'+s);return el?fmtCell(el.value):'';});
+        html+=`<tr><td style="text-align:left;padding-left:20px">${esc(ch.label)}</td>${cv.map(x=>`<td class="num">${x}</td>`).join('')}</tr>`;
+      });
+    } else {
+      html+=`<tr><td style="text-align:left">${esc(node.label)}</td>${vals.map(x=>`<td class="num">${x}</td>`).join('')}</tr>`;
+    }
+  });
+  return html;
+}
+
+function printDoc(){ buildPrintDoc(); window.print(); }
+
+function exportPDF(){
+  buildPrintDoc();
+  const el=$('printArea');
+  el.style.display='block';
+  const opt={
+    margin:[10,8,10,8],
+    filename:`เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ_${currentFacility}_${CONFIG.YEAR}.pdf`,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['css','legacy']}
+  };
+  toast('เธเธณเธฅเธฑเธเธชเธฃเนเธฒเธ PDF...','');
+  html2pdf().set(opt).from(el).save().then(()=>{ el.style.display=''; toast('เธ”เธฒเธงเธเนเนเธซเธฅเธ” PDF เนเธฅเนเธง','ok'); })
+    .catch(()=>{ el.style.display=''; toast('เธชเธฃเนเธฒเธ PDF เนเธกเนเธชเธณเน€เธฃเนเธ เธฅเธญเธเนเธเนเธเธธเนเธกเธเธดเธกเธเนเนเธฅเนเธงเน€เธฅเธทเธญเธ Save as PDF','err'); });
+}
+
+/* =========================================================================
+   เธชเนเธเธญเธญเธ Excel (SheetJS) โ€” 7 เธเธตเธ•
+   ========================================================================= */
+function exportExcel(){
+  collectPage();
+  const v=id=>$(id)?$(id).value:'';
+  const g=id=>$(id)?$(id).textContent:'';
+  const wb=XLSX.utils.book_new();
+  const title=`เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ ${currentFacility} เธญเธณเน€เธ เธญ${CONFIG.DISTRICT} เธเธฑเธเธซเธงเธฑเธ”${CONFIG.PROVINCE}  เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ ${CONFIG.YEAR}`;
+
+  // เธเธ
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
+    ['เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ'],[currentFacility],[`เธญเธณเน€เธ เธญ${CONFIG.DISTRICT} เธเธฑเธเธซเธงเธฑเธ”${CONFIG.PROVINCE}`],[`เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ เธ.เธจ. ${CONFIG.YEAR}`],[],
+    ['เธเธนเนเน€เธชเธเธญเนเธเธ', v('f_proposer'), v('f_proposer_pos')],
+    ['เธเธนเนเน€เธซเนเธเธเธญเธเนเธเธ', v('f_approver1'), v('f_approver1_pos')],
+    ['เธเธนเนเธญเธเธธเธกเธฑเธ•เธดเนเธเธ', v('f_approver2'), `เธเธฒเธขเนเธเธ—เธขเนเธชเธฒเธเธฒเธฃเธ“เธชเธธเธเธเธฑเธเธซเธงเธฑเธ”${CONFIG.PROVINCE}`],
+    ['เธงเธฑเธเธ—เธตเนเธเธฑเธ”เธ—เธณ', v('f_docdate')]
+  ]), 'เธเธ');
+
+  // เธชเธฃเธธเธเนเธเธเธฏ
+  const sumAoa=[[title],[`เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“ เธ.เธจ. ${CONFIG.YEAR}`],[],['เธฃเธฒเธขเธเธฒเธฃ','เธเธณเธเธงเธเน€เธเธดเธ (เธเธฒเธ—)'],
+    ['1. เน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญเธชเธธเธ—เธเธด (เธ“ 31 เธ.เธ. 2569)', num(g('sm1'))],
+    ['2. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต '+CONFIG.YEAR, num(g('sm2'))],
+    ['3. เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธเนเธฒเธข เธเธต '+CONFIG.YEAR, num(g('sm3'))],
+    ['   3.1 เธเธเธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃ', num(g('sm31'))],
+    ['      3.1.1 เธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด', num(g('sm311'))],
+    ['      3.1.2 เธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ', num(g('sm312'))],
+    ['   3.2 เธเธเธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ', num(g('sm32'))],
+    ['      3.2.1 เธเธฒเธเธเธเธฅเธเธ—เธธเธเธเธต 69 เนเธฅเธฐเธเนเธญเธเธฏ', num(g('sm321'))],
+    ['      3.2.2 เธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ', num(g('sm322'))],
+    ['   3.3 เธเธเธเธฅเธฒเธ', num(g('sm33'))],
+    ['4. เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ', num(g('sm4'))],
+    ['5. เธเธฒเธ”เธเธฃเธฐเธกเธฒเธ“เน€เธเธดเธเธเธเน€เธซเธฅเธทเธญ เธ“ 30 เธ.เธข. '+CONFIG.YEAR, num(g('sm5'))],[],
+    ['เธญเธฑเธ•เธฃเธฒเธเธณเธฅเธฑเธเธเธธเธเธฅเธฒเธเธฃ (เธ“ 31 เธ.เธ. 2569)']];
+  PERSONNEL.forEach(gr=>{ sumAoa.push([gr.group]); gr.roles.forEach((r,i)=>sumAoa.push(['   '+r, num(v(gr.prefix+'_'+i))+' เธเธ'])); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sumAoa), 'เธชเธฃเธธเธเนเธเธเธฏ');
+
+  // เธ•เธฒเธฃเธฒเธ 1
+  const t1=[[title],['เธ•เธฒเธฃเธฒเธเธ—เธตเน 1 เธชเธ–เธดเธ•เธดเน€เธเธดเธเธเธณเธฃเธธเธเธขเนเธญเธเธซเธฅเธฑเธ 5 เธเธต'],[],
+    ['เธเธตเธเธเธเธฃเธฐเธกเธฒเธ“','เธขเธญเธ”เธขเธเธกเธฒ','เธฃเธฒเธขเธฃเธฑเธ','เธฃเธฒเธขเธเนเธฒเธข','เธขเธญเธ”เธเธเน€เธซเธฅเธทเธญ','เธซเธกเธฒเธขเน€เธซเธ•เธธ']];
+  STAT_ROWS.forEach(r=>t1.push([r.label,num(v('st_'+r.key+'_bf')),num(v('st_'+r.key+'_in')),num(v('st_'+r.key+'_out')),num(v('st_'+r.key+'_bal')),v('st_'+r.key+'_note')]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(t1), 'เธ•เธฒเธฃเธฒเธ1');
+
+  // เธ•เธฒเธฃเธฒเธ 2
+  const t2=[[title],['เธ•เธฒเธฃเธฒเธเธ—เธตเน 2 เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธฃเธฒเธขเธฃเธฑเธ เธเธต '+CONFIG.YEAR],[],['เธฃเธฒเธขเธเธฒเธฃเธฃเธฑเธ','เธฃเธฒเธขเธฃเธฑเธเธเธต 2569','เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธเธต '+CONFIG.YEAR]];
+  treeToAoa(INCOME_TREE,['y69','y70']).forEach(r=>t2.push(r));
+  t2.push(['เธฃเธงเธกเธฃเธฒเธขเธฃเธฑเธ',num(g('inc_total_y69')),num(g('inc_total_y70'))]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(t2), 'เธ•เธฒเธฃเธฒเธ2');
+
+  // เธ•เธฒเธฃเธฒเธ 3
+  const t3=[[title],['เธ•เธฒเธฃเธฒเธเธ—เธตเน 3 เธฃเธฒเธขเธเนเธฒเธขเธ”เธณเน€เธเธดเธเธเธฒเธฃเธเธเธ•เธด เธเธต '+CONFIG.YEAR],[],['เธซเธกเธงเธ”/เธฃเธฒเธขเธเธฒเธฃ','เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ','เธฃเธฒเธขเธเนเธฒเธขเธเธต 69','เธเธฃเธฐเธกเธฒเธ“เธเธฒเธฃเธเธต '+CONFIG.YEAR]];
+  treeToAoa(EXPENSE_TREE,['debt','y69','y70']).forEach(r=>t3.push(r));
+  t3.push(['เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ',num(g('exp_total_debt')),num(g('exp_total_y69')),num(g('exp_total_y70'))]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(t3), 'เธ•เธฒเธฃเธฒเธ3');
+
+  // เธ•เธฒเธฃเธฒเธ 4
+  const t4=[[title],['เธ•เธฒเธฃเธฒเธเธ—เธตเน 4 เธฃเธฒเธขเธเนเธฒเธขเธ•เธฒเธกเนเธเธเธเธฒเธ/เนเธเธฃเธเธเธฒเธฃ เธเธต '+CONFIG.YEAR],[],['เธฅเธณเธ”เธฑเธ','เธเธทเนเธญเนเธเธฃเธเธเธฒเธฃ','เธเธณเธเธงเธเน€เธเธดเธ (เธเธฒเธ—)']];
+  let pj=0;(state.projects||[]).filter(p=>p.name||p.amount).forEach((p,i)=>{pj+=parseNum(p.amount);t4.push([i+1,p.name,parseNum(p.amount)]);});
+  t4.push(['','เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ',pj]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(t4), 'เธ•เธฒเธฃเธฒเธ4');
+
+  // เธ•เธฒเธฃเธฒเธ 5
+  const t5=[[title],['เธ•เธฒเธฃเธฒเธเธ—เธตเน 5 เธฃเธฒเธขเธเนเธฒเธขเธเธฒเธฃเธฅเธเธ—เธธเธ (Capital Cost) เธเธต '+CONFIG.YEAR],[],['เธฅเธณเธ”เธฑเธ','เธซเธกเธงเธ”','เธฃเธฒเธขเธเธฒเธฃ','เธซเธเธตเนเธเนเธฒเธเธเธณเธฃเธฐ','เนเธเนเธเธฒเธเธเธเธฅเธเธ—เธธเธ 69เธฏ','เนเธเนเธเธฒเธเน€เธเธดเธเธเธณเธฃเธธเธเธเธเน€เธซเธฅเธทเธญ']];
+  let cd=0,c4=0,c5=0;(state.capital||[]).filter(c=>c.item||c.debt||c.c4||c.c5).forEach((c,i)=>{cd+=parseNum(c.debt);c4+=parseNum(c.c4);c5+=parseNum(c.c5);t5.push([i+1,c.cat,c.item,parseNum(c.debt),parseNum(c.c4),parseNum(c.c5)]);});
+  t5.push(['','','เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ',cd,c4,c5]);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(t5), 'เธ•เธฒเธฃเธฒเธ5');
+
+  XLSX.writeFile(wb, `เนเธเธเน€เธเธดเธเธเธณเธฃเธธเธ_${currentFacility}_${CONFIG.YEAR}.xlsx`);
+  toast('เธ”เธฒเธงเธเนเนเธซเธฅเธ” Excel เนเธฅเนเธง','ok');
+}
+function num(x){ return parseNum(x); }
+function treeToAoa(tree,suffixes){
+  const rows=[];
+  tree.forEach(node=>{
+    const vals=suffixes.map(s=>{const el=$(node.id+'_'+s);return el?parseNum(el.value):0;});
+    rows.push([node.label,...vals]);
+    if(node.children) node.children.forEach(ch=>{
+      const cv=suffixes.map(s=>{const el=$(ch.id+'_'+s);return el?parseNum(el.value):0;});
+      rows.push(['   '+ch.label,...cv]);
+    });
+  });
+  return rows;
+}
+</script>
+</body>
+</html>
