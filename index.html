@@ -23,9 +23,10 @@ const CONFIG = {
   ENDORSER_POS: 'สาธารณสุขอำเภอค้อวัง',
   APPROVER_POS: 'นายแพทย์สาธารณสุขจังหวัดยโสธร',
 
-  // === แก้เป็นรหัส (5 หลัก) และชื่อ รพ.สต. จริงทั้ง 6 แห่ง ===
-  // ผู้ใช้เข้าระบบด้วย  Username = U + รหัส  /  Password = P + รหัส
-  // เช่น รหัส 12345 -> Username: U12345  Password: P12345
+  // === แก้เป็นรหัส (5 หลัก) และชื่อ รพ.สต. จริงทั้ง 6 แห่ง (ใช้แสดงในแดชบอร์ด) ===
+  // การเข้าสู่ระบบตรวจสอบที่ฝั่งเซิร์ฟเวอร์ (Apps Script ชีต USERS) — ตั้งรหัสเฉพาะรายแห่งได้
+  // Username เริ่มต้น = U + รหัส  (รหัสผ่านตั้งได้อิสระในชีต USERS)
+  // *ให้ code/name ตรงกับที่ตั้งไว้ในชีต USERS ของ Apps Script
   FACILITIES: [
     { code:'03900', name:'โรงพยาบาลส่งเสริมสุขภาพตำบลบ้านเหล่าน้อย' },
     { code:'03901', name:'โรงพยาบาลส่งเสริมสุขภาพตำบลบ้านโพนเมือง' },
@@ -367,18 +368,21 @@ table.tbl td.center{text-align:center;width:60px;color:var(--muted)}
 .doc .note-para{font-size:12.5px;margin:12px 0 0;line-height:1.55;white-space:pre-line}
 .doc .note-para b{font-weight:700}
 
-/* ปก: กึ่งกลางหน้า */
-.doc .cover-mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-.doc .cover-title h2{font-size:30px;margin-bottom:6px}
-.doc .cover-title .l2{font-size:22px;margin:4px 0}
-.doc .cover-title .l3{font-size:18px;margin:2px 0}
-.doc .cover-signs{margin-top:60px;display:flex;flex-direction:column;gap:30px;align-items:center}
+/* ปก: หัวเรื่องขยับขึ้นด้านบน + ลายเซ็น 3 ชุดกระจายสมดุลเต็มหน้า A4 */
+.doc .sheet.cover{justify-content:flex-start;padding-top:22mm;text-align:center}
+.doc .cover-title h2{font-size:32px;margin-bottom:8px}
+.doc .cover-title .l2{font-size:24px;margin:6px 0}
+.doc .cover-title .l3{font-size:19px;margin:3px 0}
+.doc .cover-signs{
+  flex:1 1 auto;display:flex;flex-direction:column;
+  justify-content:space-evenly;align-items:center;width:100%;margin-top:12mm;
+}
+.doc .cover-signs .sign-block{min-width:300px}
 
-/* บล็อกลายเซ็น */
-.doc .sign-stack{margin-top:20px;display:flex;flex-direction:column;gap:22px}
-.doc .sign-stack.right{align-items:flex-end}
+/* บล็อกลายเซ็น (จัดกึ่งกลางหน้า, ชื่อ-ตำแหน่ง อยู่กึ่งกลางใต้ช่องลงชื่อ) */
+.doc .sign-stack{margin-top:18px;display:flex;flex-direction:column;gap:24px;align-items:center}
 .doc .sign-stack.center{align-items:center}
-.doc .sign-block{font-size:13.5px;text-align:center;line-height:1.7;min-width:270px}
+.doc .sign-block{font-size:13.5px;text-align:center;line-height:1.8;min-width:300px}
 .doc .sign-block .ln{white-space:nowrap}
 </style>
 </head>
@@ -400,7 +404,7 @@ table.tbl td.center{text-align:center;width:60px;color:var(--muted)}
     </div>
     <button class="btn primary" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="login-err" id="lg_err"></div>
-    <div class="login-hint">Username = <b>U</b> ตามด้วยรหัสสถานบริการ 5 หลัก<br>Password = <b>P</b> ตามด้วยรหัสสถานบริการ 5 หลัก</div>
+    <div class="login-hint">Username = <b>U</b> ตามด้วยรหัสสถานบริการ 5 หลัก<br>รหัสผ่าน: ได้รับจากผู้ดูแลระบบ (ตั้งเฉพาะรายแห่ง)</div>
   </div>
 </div>
 
@@ -850,7 +854,7 @@ function init(){
   // คืนสถานะล็อกอินจาก session (ถ้ามี)
   try{
     const saved = sessionStorage.getItem('plan2570_user');
-    if(saved){ const f = facByCode(JSON.parse(saved).code); if(f){ currentUser=f; showScreen('dash'); renderDashboard(); return; } }
+    if(saved){ const o=JSON.parse(saved); if(o && o.code){ currentUser={code:String(o.code), name:o.name||(facByCode(o.code)||{}).name}; showScreen('dash'); renderDashboard(); return; } }
   }catch(e){}
   showScreen('login');
 }
@@ -865,13 +869,33 @@ function showScreen(name){
 
 /* -------- ล็อกอิน / ออกจากระบบ -------- */
 function doLogin(){
-  const f = authCheck($('lg_user').value, $('lg_pass').value);
-  const err = $('lg_err');
-  if(!f){ err.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; return; }
-  err.textContent = '';
-  currentUser = f;
-  try{ sessionStorage.setItem('plan2570_user', JSON.stringify({code:f.code})); }catch(e){}
-  $('lg_pass').value = '';
+  const user = $('lg_user').value.trim();
+  const pass = $('lg_pass').value;
+  const err  = $('lg_err');
+  if(!user || !pass){ err.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'; return; }
+
+  // โหมดทดสอบ (ยังไม่ตั้ง WEB_APP_URL): ยอมรับ U+รหัส / P+รหัส
+  if(!CONFIG.WEB_APP_URL){
+    const f = authCheck(user, pass);
+    if(!f){ err.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (โหมดทดสอบ)'; return; }
+    onLoginOk(f); return;
+  }
+
+  // ตรวจสอบที่ฝั่งเซิร์ฟเวอร์ (Apps Script) — รหัสผ่านอยู่ในชีต USERS
+  err.textContent = 'กำลังตรวจสอบ...';
+  fetch(CONFIG.WEB_APP_URL, {
+    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({action:'login', username:user, password:pass})
+  }).then(r=>r.json()).then(res=>{
+    if(res && res.ok && res.facility){ onLoginOk(res.facility); }
+    else { err.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'; }
+  }).catch(()=>{ err.textContent = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่'; });
+}
+
+function onLoginOk(f){
+  currentUser = { code:String(f.code), name:f.name };
+  try{ sessionStorage.setItem('plan2570_user', JSON.stringify(currentUser)); }catch(e){}
+  $('lg_err').textContent = ''; $('lg_pass').value = '';
   showScreen('dash'); renderDashboard();
 }
 function logout(){
@@ -1350,12 +1374,12 @@ function buildPrintDoc(){
       <div class="ln">( ${esc(name)|| DOTS} )</div>
       <div class="ln">${esc(pos)}</div></div>`;
   }
-  // ผู้เสนอแผน + ผู้เห็นชอบแผน (สำหรับตารางย่อย)
-  const sign2 = `<div class="sign-stack right">
+  // ผู้เสนอแผน + ผู้เห็นชอบแผน (สำหรับตารางย่อย) — จัดกึ่งกลางหน้า
+  const sign2 = `<div class="sign-stack center">
       ${sBlock('ผู้เสนอแผน', propName, propPos)}
       ${sBlock('ผู้เห็นชอบแผน', endName, endPos)}</div>`;
-  // ผู้เสนอ + เห็นชอบ + อนุมัติ (หน้าสรุป)
-  const sign3 = `<div class="sign-stack right">
+  // ผู้เสนอ + เห็นชอบ + อนุมัติ (หน้าสรุป) — จัดกึ่งกลางหน้า
+  const sign3 = `<div class="sign-stack center">
       ${sBlock('ผู้เสนอแผน', propName, propPos)}
       ${sBlock('ผู้เห็นชอบแผน', endName, endPos)}
       ${sBlock('ผู้อนุมัติแผน', apprName, apprPos)}</div>`;
@@ -1363,9 +1387,9 @@ function buildPrintDoc(){
   const head=`<div class="head"><h2>แผนเงินบำรุง ${esc(currentFacility)}</h2>
     <div class="l3">อำเภอ${esc(CONFIG.DISTRICT)} จังหวัด${esc(CONFIG.PROVINCE)} · ประจำปีงบประมาณ พ.ศ. ${CONFIG.YEAR}</div></div>`;
 
-  /* ====== หน้า 1 : ปก (กึ่งกลางหน้า A4, เรียง เสนอ→เห็นชอบ→อนุมัติ) ====== */
+  /* ====== หน้า 1 : ปก (หัวเรื่องด้านบน, ลายเซ็น 3 ชุดกึ่งกลาง เว้นระยะสมดุลเต็มหน้า A4) ====== */
   let html=`<div class="doc">
-  <div class="sheet"><div class="cover-mid">
+  <div class="sheet cover">
     <div class="cover-title">
       <h2>แผนเงินบำรุง</h2>
       <div class="l2">${esc(currentFacility)}</div>
@@ -1377,7 +1401,7 @@ function buildPrintDoc(){
       ${sBlock('ผู้เห็นชอบแผน', endName, endPos)}
       ${sBlock('ผู้อนุมัติแผน', apprName, apprPos)}
     </div>
-  </div></div>`;
+  </div>`;
 
   /* ====== ตารางที่ 1 : สถิติย้อนหลัง + หมายเหตุเอกสารแนบ + เสนอ/เห็นชอบ ====== */
   const t1note = `<div class="note-para"><b>หมายเหตุ</b>   ขอให้ทุก รพ.สต. ทุกแห่ง แนบเอกสารดังนี้ประกอบการจัดทำแผนด้วย
